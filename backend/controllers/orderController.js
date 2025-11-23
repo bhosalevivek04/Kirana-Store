@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const redisClient = require('../config/redisClient');
 
 exports.createOrder = async (req, res) => {
     try {
@@ -84,6 +85,8 @@ exports.updateOrderStatus = async (req, res) => {
                 product.stock -= item.quantity;
                 await product.save();
             }
+            // Invalidate product cache
+            await redisClient.del('products');
         }
 
         order.status = status;

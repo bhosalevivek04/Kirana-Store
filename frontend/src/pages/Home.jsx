@@ -241,7 +241,7 @@ const Home = () => {
                                 )}
 
                                 {/* Price */}
-                                <div className="flex items-baseline gap-1 mb-2">
+                                <div className="flex items-baseline gap-1 mb-2 mt-auto">
                                     <span className="text-sm md:text-base font-bold text-gray-900">₹{product.price}</span>
                                     <span className="text-xs text-gray-400 line-through">₹{(product.price * 1.2).toFixed(0)}</span>
                                 </div>

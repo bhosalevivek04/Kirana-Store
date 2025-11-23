@@ -55,7 +55,8 @@ const OrderManagement = () => {
             fetchData(); // Refresh data
         } catch (error) {
             console.error('Error updating order status:', error);
-            alert('Failed to update order status');
+            console.error('Error updating order status:', error);
+            alert(error.response?.data?.message || 'Failed to update order status');
         }
     };
 

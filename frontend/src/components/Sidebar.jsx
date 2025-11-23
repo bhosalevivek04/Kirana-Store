@@ -47,7 +47,11 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </div>
 
                         {/* User Profile Section */}
-                        <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                        <Link
+                            to="/profile"
+                            onClick={handleLinkClick}
+                            className="flex items-center gap-3 p-3 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-colors"
+                        >
                             <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
                                 <User size={24} className="text-white" />
                             </div>
@@ -58,7 +62,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     {user.role}
                                 </p>
                             </div>
-                        </div>
+                        </Link>
                     </div>
 
                     {/* Navigation Links */}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, MessageCircle, LogOut, Package, Menu, Search, X, User } from 'lucide-react';
 import Sidebar from './Sidebar';
 import api from '../api';
@@ -33,12 +33,16 @@ const NavIcon = ({ to, icon: Icon, label, onClick, className = '' }) => {
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const user = JSON.parse(localStorage.getItem('user'));
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchSuggestions, setSearchSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     const searchRef = useRef(null);
+
+    const isHomePage = location.pathname === '/';
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -129,9 +133,9 @@ const Navbar = () => {
                             <Link to="/" className="text-xl font-bold whitespace-nowrap" onClick={clearSearch}>Kirana Store</Link>
                         </div>
 
-                        {/* Center: Search Bar with Autocomplete */}
-                        {user && user.role === 'customer' && (
-                            <div ref={searchRef} className="flex flex-1 max-w-xl mx-2 md:mx-4 relative">
+                        {/* Center: Search Bar (Desktop) */}
+                        {user && (user.role === 'customer' || user.role === 'owner') && isHomePage && (
+                            <div ref={searchRef} className="hidden md:flex flex-1 max-w-xl mx-4 relative">
                                 <form onSubmit={handleSearch} className="w-full">
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" size={18} />
@@ -141,7 +145,7 @@ const Navbar = () => {
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             onFocus={() => searchQuery && setShowSuggestions(true)}
-                                            className="w-full pl-9 pr-10 py-1.5 md:py-2 rounded-lg text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 text-sm"
+                                            className="w-full pl-9 pr-10 py-2 rounded-lg text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 text-sm"
                                         />
                                         {/* Clear Button */}
                                         {searchQuery && (
@@ -257,7 +261,34 @@ const Navbar = () => {
                                 </>
                             )}
                         </div>
+
+                        {/* Mobile Search Icon */}
+                        {user && (user.role === 'customer' || user.role === 'owner') && isHomePage && (
+                            <button
+                                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                                className="md:hidden p-2 text-white hover:bg-green-700 rounded-lg transition-colors ml-auto"
+                            >
+                                {isMobileSearchOpen ? <X size={24} /> : <Search size={24} />}
+                            </button>
+                        )}
                     </div>
+
+                    {/* Mobile Search Bar (Expandable) */}
+                    {isMobileSearchOpen && isHomePage && (
+                        <div className="md:hidden mt-3 pb-2">
+                            <form onSubmit={handleSearch} className="w-full relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Search products..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    autoFocus
+                                    className="w-full pl-9 pr-4 py-2 rounded-lg text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 text-sm"
+                                />
+                            </form>
+                        </div>
+                    )}
                 </div>
             </nav>
         </>

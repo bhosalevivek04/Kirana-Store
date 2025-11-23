@@ -125,7 +125,8 @@ const Inventory = () => {
                 </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            {/* Desktop View - Table */}
+            <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
@@ -163,6 +164,53 @@ const Inventory = () => {
                         })}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile View - Cards */}
+            <div className="md:hidden space-y-4">
+                {products.map(product => {
+                    const status = getStockStatus(product.stock, product.minStockLevel || 10);
+                    return (
+                        <div key={product._id} className="bg-white rounded-lg shadow p-4">
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                                    <p className="text-sm text-gray-500">{product.category}</p>
+                                </div>
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${status.color} flex items-center`}>
+                                    {status.icon && <AlertTriangle size={12} className="mr-1" />}
+                                    {status.text}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                                <div>
+                                    <span className="text-gray-500 block">Price</span>
+                                    <span className="font-medium">₹{product.price}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500 block">Stock</span>
+                                    <span className="font-medium">{product.stock}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
+                                <button
+                                    onClick={() => openModal(product)}
+                                    className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                                >
+                                    <Edit size={16} /> Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(product._id)}
+                                    className="flex items-center gap-1 text-red-600 hover:text-red-800 text-sm font-medium"
+                                >
+                                    <Trash size={16} /> Delete
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             {isModalOpen && (
