@@ -134,7 +134,7 @@ const Navbar = () => {
                         </div>
 
                         {/* Center: Search Bar (Desktop) */}
-                        {user && (user.role === 'customer' || user.role === 'owner') && isHomePage && (
+                        {isHomePage && (
                             <div ref={searchRef} className="hidden md:flex flex-1 max-w-xl mx-4 relative">
                                 <form onSubmit={handleSearch} className="w-full">
                                     <div className="relative">
@@ -263,7 +263,7 @@ const Navbar = () => {
                         </div>
 
                         {/* Mobile Search Icon */}
-                        {user && (user.role === 'customer' || user.role === 'owner') && isHomePage && (
+                        {isHomePage && (
                             <button
                                 onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
                                 className="md:hidden p-2 text-white hover:bg-green-700 rounded-lg transition-colors ml-auto"
