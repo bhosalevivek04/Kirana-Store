@@ -115,7 +115,7 @@ const Udhaar = () => {
     };
 
     const getCustomerEntries = (userId) => {
-        return entries.filter(entry => entry.user._id === userId);
+        return entries.filter(entry => entry.user?._id === userId);
     };
 
     const toggleCustomerExpand = (userId) => {
@@ -293,8 +293,8 @@ const Udhaar = () => {
                                         {new Date(entry.date).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{entry.user.name}</div>
-                                        <div className="text-sm text-gray-500">{entry.user.email}</div>
+                                        <div className="text-sm font-medium text-gray-900">{entry.user?.name || 'Unknown User'}</div>
+                                        <div className="text-sm text-gray-500">{entry.user?.email || 'N/A'}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${entry.type === 'credit' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>

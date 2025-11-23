@@ -102,7 +102,12 @@ const Home = () => {
     const user = JSON.parse(localStorage.getItem('user'));
 
     const addToCart = (product) => {
-        if (user?.role === 'owner') return; // Prevent owner from adding to cart
+        if (!user) {
+            alert('Please login to add items to cart');
+            window.location.href = '/login';
+            return;
+        }
+        // if (user?.role === 'owner') return; // REMOVED: Owner can now add to cart
         if (product.stock === 0) {
             alert('Product is out of stock!');
             return;
@@ -243,46 +248,40 @@ const Home = () => {
 
                                 {product.stock > 0 ? (
                                     <>
-                                        {/* Quantity Selector & Add Button - Hidden for Owner */}
-                                        {user?.role !== 'owner' ? (
-                                            <>
-                                                <div className="flex items-center gap-1 mb-1.5">
-                                                    <button
-                                                        onClick={() => decrementQuantity(product._id)}
-                                                        className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded border border-green-600 text-green-600 hover:bg-green-50 font-bold disabled:opacity-40"
-                                                        disabled={getQuantity(product._id) <= 1}
-                                                    >
-                                                        −
-                                                    </button>
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        max={product.stock}
-                                                        value={getQuantity(product._id)}
-                                                        onChange={(e) => updateQuantity(product._id, parseInt(e.target.value) || 1)}
-                                                        className="w-8 md:w-10 h-6 md:h-7 text-center border border-gray-300 rounded font-medium text-xs focus:outline-none focus:border-green-500"
-                                                    />
-                                                    <button
-                                                        onClick={() => incrementQuantity(product._id)}
-                                                        className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded bg-green-600 text-white hover:bg-green-700 font-bold disabled:opacity-40"
-                                                        disabled={getQuantity(product._id) >= product.stock}
-                                                    >
-                                                        +
-                                                    </button>
-                                                </div>
-
+                                        <>
+                                            {/* Quantity Selector & Add Button - Visible to Everyone */}
+                                            <div className="flex items-center gap-1 mb-1.5">
                                                 <button
-                                                    onClick={() => addToCart(product)}
-                                                    className="w-full py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 font-semibold text-xs transition-colors"
+                                                    onClick={() => decrementQuantity(product._id)}
+                                                    className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded border border-green-600 text-green-600 hover:bg-green-50 font-bold disabled:opacity-40"
+                                                    disabled={getQuantity(product._id) <= 1}
                                                 >
-                                                    Add
+                                                    −
                                                 </button>
-                                            </>
-                                        ) : (
-                                            <div className="text-xs text-gray-500 italic mt-auto">
-                                                Owner View
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max={product.stock}
+                                                    value={getQuantity(product._id)}
+                                                    onChange={(e) => updateQuantity(product._id, parseInt(e.target.value) || 1)}
+                                                    className="w-8 md:w-10 h-6 md:h-7 text-center border border-gray-300 rounded font-medium text-xs focus:outline-none focus:border-green-500"
+                                                />
+                                                <button
+                                                    onClick={() => incrementQuantity(product._id)}
+                                                    className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded bg-green-600 text-white hover:bg-green-700 font-bold disabled:opacity-40"
+                                                    disabled={getQuantity(product._id) >= product.stock}
+                                                >
+                                                    +
+                                                </button>
                                             </div>
-                                        )}
+
+                                            <button
+                                                onClick={() => addToCart(product)}
+                                                className="w-full py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 font-semibold text-xs transition-colors"
+                                            >
+                                                Add
+                                            </button>
+                                        </>
                                     </>
                                 ) : (
                                     <button
@@ -361,8 +360,8 @@ const Home = () => {
                                         )}
                                     </div>
 
-                                    {/* Add to Cart Section - Hidden for Owner */}
-                                    {selectedProduct.stock > 0 && user?.role !== 'owner' && (
+                                    {/* Add to Cart Section - Visible to Everyone */}
+                                    {selectedProduct.stock > 0 && (
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <span className="text-sm font-medium text-gray-700">Quantity:</span>

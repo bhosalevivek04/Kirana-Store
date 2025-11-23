@@ -1,8 +1,35 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, MessageCircle, LogOut, Package, Menu, Search, X } from 'lucide-react';
+import { ShoppingCart, MessageCircle, LogOut, Package, Menu, Search, X, User } from 'lucide-react';
 import Sidebar from './Sidebar';
 import api from '../api';
+
+const NavIcon = ({ to, icon: Icon, label, onClick, className = '' }) => {
+    const content = (
+        <>
+            <Icon size={24} />
+            <span className="absolute top-full mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-lg">
+                {label}
+            </span>
+        </>
+    );
+
+    const baseClass = `group relative flex items-center justify-center p-2 rounded-lg hover:bg-green-700 transition-colors ${className}`;
+
+    if (onClick) {
+        return (
+            <button onClick={onClick} className={baseClass}>
+                {content}
+            </button>
+        );
+    }
+
+    return (
+        <Link to={to} className={baseClass}>
+            {content}
+        </Link>
+    );
+};
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -187,32 +214,25 @@ const Navbar = () => {
                         )}
 
                         {/* Right: Desktop Navigation + Mobile Icons */}
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2 md:space-x-4">
                             {user ? (
                                 <>
                                     {/* Desktop Navigation - Hidden on Mobile */}
-                                    <span className="font-medium hidden md:inline">Hi, {user.name}</span>
+                                    <Link to="/profile" className="font-medium hidden md:flex items-center gap-2 mr-2 hover:text-green-200">
+                                        <User size={20} />
+                                        <span>Hi, {user.name}</span>
+                                    </Link>
 
                                     {user.role === 'customer' && (
                                         <>
                                             {/* Mobile Icons - Always Visible */}
-                                            <Link to="/cart" className="hover:text-green-200 p-2">
-                                                <ShoppingCart size={24} />
-                                            </Link>
-                                            <Link to="/orders" className="hover:text-green-200 p-2 md:hidden">
-                                                <Package size={24} />
-                                            </Link>
-                                            <Link to="/chat" className="hover:text-green-200 p-2 md:hidden">
-                                                <MessageCircle size={24} />
-                                            </Link>
+                                            <NavIcon to="/cart" icon={ShoppingCart} label="Cart" />
+                                            <NavIcon to="/orders" icon={Package} label="My Orders" className="md:hidden" />
+                                            <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="md:hidden" />
 
                                             {/* Desktop Links - Hidden on Mobile */}
-                                            <Link to="/orders" className="hover:text-green-200 hidden md:inline">
-                                                <Package size={24} />
-                                            </Link>
-                                            <Link to="/chat" className="hover:text-green-200 hidden md:inline">
-                                                <MessageCircle size={24} />
-                                            </Link>
+                                            <NavIcon to="/orders" icon={Package} label="My Orders" className="hidden md:flex" />
+                                            <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="hidden md:flex" />
                                         </>
                                     )}
 
@@ -223,13 +243,12 @@ const Navbar = () => {
                                             <Link to="/inventory" className="hover:text-green-200 hidden md:inline">Inventory</Link>
                                             <Link to="/order-management" className="hover:text-green-200 hidden md:inline">Orders</Link>
                                             <Link to="/udhaar" className="hover:text-green-200 hidden md:inline">Udhaar</Link>
+                                            <NavIcon to="/cart" icon={ShoppingCart} label="Cart" />
                                         </>
                                     )}
 
                                     {/* Logout - Hidden on Mobile */}
-                                    <button onClick={handleLogout} className="hover:text-red-200 hidden md:block">
-                                        <LogOut size={24} />
-                                    </button>
+                                    <NavIcon onClick={handleLogout} icon={LogOut} label="Logout" className="hidden md:flex hover:bg-red-600" />
                                 </>
                             ) : (
                                 <>

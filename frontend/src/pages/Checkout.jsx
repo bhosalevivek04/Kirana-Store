@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { CreditCard, Wallet } from 'lucide-react';
+import { CreditCard, Wallet, Banknote } from 'lucide-react';
 
 const Checkout = () => {
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState('online'); // 'online' or 'credit'
+    const [paymentMethod, setPaymentMethod] = useState('online'); // 'online', 'credit', or 'cash'
     const navigate = useNavigate();
     const [showPhoneModal, setShowPhoneModal] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
 
+    // Get user for role check
+    const user = JSON.parse(localStorage.getItem('user'));
+
     const handlePlaceOrder = () => {
-        const user = JSON.parse(localStorage.getItem('user'));
         if (!user?.phone) {
             setShowPhoneModal(true);
             return;
         }
-        paymentMethod === 'online' ? handleOnlinePayment() : handleCreditPayment();
+        if (paymentMethod === 'online') handleOnlinePayment();
+        else if (paymentMethod === 'credit') handleCreditPayment();
+        else handleCashPayment();
     };
 
     const handlePhoneSubmit = async (e) => {
@@ -25,13 +29,15 @@ const Checkout = () => {
         if (!phoneNumber) return;
 
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
             await api.put(`/users/${user.id}`, { phone: phoneNumber });
 
             const updatedUser = { ...user, phone: phoneNumber };
             localStorage.setItem('user', JSON.stringify(updatedUser));
             setShowPhoneModal(false);
-            paymentMethod === 'online' ? handleOnlinePayment() : handleCreditPayment();
+
+            if (paymentMethod === 'online') handleOnlinePayment();
+            else if (paymentMethod === 'credit') handleCreditPayment();
+            else handleCashPayment();
         } catch (error) {
             console.error('Failed to update phone:', error);
             alert('Failed to save phone number. Please try again.');
@@ -134,6 +140,33 @@ const Checkout = () => {
         }
     };
 
+    const handleCashPayment = async () => {
+        if (user?.role !== 'owner') {
+            alert('Cash payment is only available for owners.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // 1. Create Order with cash payment method
+            await api.post('/orders', {
+                items: cart.map(item => ({ product: item._id, quantity: item.quantity, price: item.price })),
+                totalAmount: total,
+                paymentMethod: 'cash'
+            });
+
+            // 2. Clear Cart and Redirect
+            localStorage.removeItem('cart');
+            alert('Order placed successfully! Please pay cash at the counter.');
+            navigate('/orders');
+        } catch (error) {
+            console.error('Cash order error:', error);
+            alert(error.response?.data?.message || 'Failed to place cash order');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-2xl font-bold mb-6">Checkout</h1>
@@ -183,6 +216,29 @@ const Checkout = () => {
                                 </div>
                             </button>
 
+                            {/* Cash Payment - Only for Owner */}
+                            {user?.role === 'owner' && (
+                                <button
+                                    onClick={() => setPaymentMethod('cash')}
+                                    className={`w-full p-4 md:p-5 border-2 rounded-lg flex items-center gap-3 md:gap-4 transition-all touch-manipulation ${paymentMethod === 'cash'
+                                        ? 'border-green-600 bg-green-50'
+                                        : 'border-gray-200 hover:border-green-300'
+                                        }`}
+                                >
+                                    <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cash' ? 'border-green-600' : 'border-gray-300'
+                                        }`}>
+                                        {paymentMethod === 'cash' && (
+                                            <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-600 rounded-full"></div>
+                                        )}
+                                    </div>
+                                    <Banknote size={24} className="text-green-600" />
+                                    <div className="flex-1 text-left">
+                                        <div className="font-semibold text-base md:text-lg">Pay via Cash</div>
+                                        <div className="text-xs md:text-sm text-gray-500">Pay cash at counter</div>
+                                    </div>
+                                </button>
+                            )}
+
                             {/* Credit/Udhaar Payment */}
                             <button
                                 onClick={() => setPaymentMethod('credit')}
@@ -212,7 +268,7 @@ const Checkout = () => {
                         disabled={loading}
                         className="w-full bg-green-600 text-white py-4 md:py-5 rounded-lg hover:bg-green-700 active:bg-green-800 font-semibold text-base md:text-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors touch-manipulation"
                     >
-                        {loading ? 'Processing...' : paymentMethod === 'online' ? 'Pay Now' : 'Place Order on Credit'}
+                        {loading ? 'Processing...' : paymentMethod === 'online' ? 'Pay Now' : paymentMethod === 'cash' ? 'Place Order via Cash' : 'Place Order on Credit'}
                     </button>
                 </div>
             </div>
@@ -227,7 +283,10 @@ const Checkout = () => {
                             <input
                                 type="tel"
                                 value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '');
+                                    if (val.length <= 10) setPhoneNumber(val);
+                                }}
                                 className="w-full border rounded-lg p-2 mb-4 focus:ring-2 focus:ring-green-500 outline-none"
                                 placeholder="Enter mobile number"
                                 required

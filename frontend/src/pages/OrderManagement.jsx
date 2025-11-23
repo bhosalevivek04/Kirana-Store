@@ -279,10 +279,14 @@ const OrderManagement = () => {
                                                             alert('Customer phone number not available');
                                                             return;
                                                         }
+                                                        let phone = order.user.phone.replace(/\D/g, ''); // Remove non-digits
+                                                        if (phone.length === 10) {
+                                                            phone = '91' + phone;
+                                                        }
                                                         const message = encodeURIComponent(
                                                             `Hi ${order.user.name}, your order #${order._id.slice(-6)} is ${order.status}! 📦 Total: ₹${order.totalAmount}`
                                                         );
-                                                        window.open(`https://wa.me/${order.user.phone}?text=${message}`, '_blank');
+                                                        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
                                                     }}
                                                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium flex items-center gap-2"
                                                 >

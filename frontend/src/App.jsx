@@ -11,6 +11,9 @@ import Checkout from './pages/Checkout';
 import Chat from './pages/Chat';
 import Orders from './pages/Orders';
 import OrderManagement from './pages/OrderManagement';
+import Profile from './pages/Profile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -23,6 +26,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
 
             {/* Customer Routes */}
             <Route path="/cart" element={<Cart />} />
