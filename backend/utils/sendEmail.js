@@ -4,9 +4,11 @@ const sendEmail = async (options) => {
     let transporter;
 
     // Check if SMTP credentials exist in .env
-    if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
+    if (process.env.SMTP_HOST && process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
         transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT || 587,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: process.env.SMTP_EMAIL,
                 pass: process.env.SMTP_PASSWORD

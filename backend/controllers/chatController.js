@@ -1,5 +1,6 @@
 const ChatLog = require('../models/ChatLog');
 const Product = require('../models/Product');
+const Order = require('../models/Order');
 
 exports.getChatHistory = async (req, res) => {
     try {
@@ -20,47 +21,98 @@ exports.chat = async (req, res) => {
 
         let chatLog = await ChatLog.findOne({ user: userId });
         if (!chatLog) {
-            chatLog = new ChatLog({ user: userId, messages: [] });
+            chatLog = new ChatLog({ user: userId, messages: [], context: 'IDLE' });
         }
 
         // Add user message
         chatLog.messages.push({ sender: 'user', text: message });
 
-        // Generate Bot Response
-        let botResponse = "I'm sorry, I didn't understand that. You can ask me about products.";
+        let botResponse = "I'm sorry, I didn't understand that.";
+        let options = [];
         const lowerMsg = message.toLowerCase();
 
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-            botResponse = "Hello! Welcome to Kirana Store. How can I help you today?";
-        } else if (lowerMsg.includes('price') || lowerMsg.includes('cost') || lowerMsg.includes('how much')) {
-            // Search for product in message
+        // --- STATE MACHINE LOGIC ---
+
+        // RESET: Allow user to cancel/reset at any time
+        if (lowerMsg === 'cancel' || lowerMsg === 'menu' || lowerMsg === 'main menu' || lowerMsg === 'hi' || lowerMsg === 'hello') {
+            chatLog.context = 'IDLE';
+            chatLog.metadata = {};
+        }
+
+        // STATE: IDLE
+        if (chatLog.context === 'IDLE') {
+            if (lowerMsg.includes('price')) {
+                botResponse = "Sure! Which product's price are you looking for? (e.g., Milk, Atta)";
+                chatLog.context = 'SEARCH_PRICE';
+            } else if (lowerMsg.includes('stock')) {
+                botResponse = "Sure! Which product's stock do you want to check?";
+                chatLog.context = 'SEARCH_STOCK';
+            } else if (lowerMsg.includes('order')) {
+                // Fetch recent orders
+                const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).limit(3);
+                if (orders.length === 0) {
+                    botResponse = "You haven't placed any orders yet.";
+                    options = ["Check Price", "Check Stock"];
+                } else {
+                    botResponse = "Here are your recent orders:";
+                    // Format orders nicely
+                    orders.forEach(order => {
+                        botResponse += `\n• Order #${order._id.toString().slice(-6)}: ${order.status} (₹${order.totalAmount})`;
+                    });
+                    options = ["Check Price", "Check Stock", "Main Menu"];
+                }
+            } else {
+                botResponse = "Hello! I can help you with Prices, Stock, and Order Status. What would you like to do?";
+                options = ["Check Price", "Check Stock", "My Orders"];
+            }
+        }
+
+        // STATE: SEARCH_PRICE
+        else if (chatLog.context === 'SEARCH_PRICE') {
             const products = await Product.find();
-            const foundProduct = products.find(p => lowerMsg.includes(p.name.toLowerCase()));
+            // Fuzzy search: Check if product name contains the message or vice versa
+            const foundProduct = products.find(p =>
+                p.name.toLowerCase().includes(lowerMsg) ||
+                lowerMsg.includes(p.name.toLowerCase())
+            );
+
             if (foundProduct) {
                 botResponse = `The price of ${foundProduct.name} is ₹${foundProduct.price}.`;
+                options = ["Check another price", "Main Menu"];
+                chatLog.context = 'IDLE'; // Reset after answering
             } else {
-                botResponse = "Please specify the product name to get its price.";
+                botResponse = "Sorry, I couldn't find a product with that name. Please try again or type 'Menu' to go back.";
+                options = ["Main Menu"];
             }
-        } else if (lowerMsg.includes('stock') || lowerMsg.includes('available') || lowerMsg.includes('have')) {
+        }
+
+        // STATE: SEARCH_STOCK
+        else if (chatLog.context === 'SEARCH_STOCK') {
             const products = await Product.find();
-            const foundProduct = products.find(p => lowerMsg.includes(p.name.toLowerCase()));
+            const foundProduct = products.find(p =>
+                p.name.toLowerCase().includes(lowerMsg) ||
+                lowerMsg.includes(p.name.toLowerCase())
+            );
+
             if (foundProduct) {
                 botResponse = foundProduct.stock > 0
                     ? `Yes, we have ${foundProduct.stock} ${foundProduct.name}(s) in stock.`
                     : `Sorry, ${foundProduct.name} is currently out of stock.`;
+                options = ["Check another stock", "Main Menu"];
+                chatLog.context = 'IDLE'; // Reset after answering
             } else {
-                botResponse = "Please specify the product name to check availability.";
+                botResponse = "Sorry, I couldn't find a product with that name. Please try again or type 'Menu' to go back.";
+                options = ["Main Menu"];
             }
-        } else if (lowerMsg.includes('thank')) {
-            botResponse = "You're welcome! Happy shopping!";
         }
 
         // Add bot response
-        chatLog.messages.push({ sender: 'bot', text: botResponse });
+        chatLog.messages.push({ sender: 'bot', text: botResponse, options });
         await chatLog.save();
 
         res.json({ response: botResponse, history: chatLog.messages });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: error.message });
     }
 };

@@ -32,29 +32,53 @@ const Chat = () => {
     const handleSend = async (e) => {
         e.preventDefault();
         if (!input.trim()) return;
-
-        const userMessage = { sender: 'user', text: input };
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
-        setLoading(true);
-
-        try {
-            const res = await api.post('/chat', { message: userMessage.text });
-            // The backend returns the full history or just the response. 
-            // Based on my controller: res.json({ response: botResponse, history: chatLog.messages });
-            // So I can just use the history from response or append the bot response.
-            // Let's append for smoother UI or use history if we want to be sure.
-            // Using history ensures sync.
-            setMessages(res.data.history);
-        } catch (error) {
-            console.error('Error sending message:', error);
-            setMessages(prev => [...prev, { sender: 'bot', text: 'Sorry, I am having trouble connecting.' }]);
-        } finally {
-            setLoading(false);
-        }
+        sendMessage(input);
     };
 
-    return (
+    try {
+        const res = await api.post('/chat', { message: userMessage.text });
+        // The backend returns the full history or just the response. 
+        // Based on my controller: res.json({ response: botResponse, history: chatLog.messages });
+        // So I can just use the history from response or append the bot response.
+        // Let's append for smoother UI or use history if we want to be sure.
+        // Using history ensures sync.
+        setMessages(res.data.history);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        setMessages(prev => [...prev, { sender: 'bot', text: 'Sorry, I am having trouble connecting.' }]);
+    } finally {
+        setLoading(false);
+    }
+}
+};
+
+const handleOptionClick = (option) => {
+    setInput(option);
+    // Optionally auto-send:
+    // handleSend({ preventDefault: () => {} }, option); 
+    // But setting input allows user to edit or just confirm. 
+    // Let's auto-send for better UX as requested "select option only"
+    sendMessage(option);
+};
+
+const sendMessage = async (text) => {
+    const userMessage = { sender: 'user', text: text };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+        const res = await api.post('/chat', { message: text });
+        setMessages(res.data.history);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        setMessages(prev => [...prev, { sender: 'bot', text: 'Sorry, I am having trouble connecting.' }]);
+    } finally {
+        setLoading(false);
+    }
+};
+
+return (
         <div className="max-w-2xl mx-auto h-[600px] flex flex-col bg-white rounded-lg shadow-md overflow-hidden">
             <div className="bg-green-600 text-white p-4 flex items-center">
                 <Bot className="mr-2" />
@@ -70,6 +94,21 @@ const Chat = () => {
                             </span>
                             <p>{msg.text}</p>
                         </div>
+                    </div>
+                    {/* Render Options if available */}
+                    {msg.options && msg.options.length > 0 && (
+                        <div className={`flex flex-wrap gap-2 mt-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start ml-10'}`}>
+                            {msg.options.map((option, optIndex) => (
+                                <button
+                                    key={optIndex}
+                                    onClick={() => handleOptionClick(option)}
+                                    className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full hover:bg-green-200 border border-green-200 transition-colors"
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                     </div>
                 ))}
                 {loading && (
@@ -98,7 +137,7 @@ const Chat = () => {
                     <Send size={20} />
                 </button>
             </form>
-        </div>
+        </div >
     );
 };
 
