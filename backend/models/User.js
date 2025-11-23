@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ['owner', 'customer'], default: 'customer' },
     phone: { type: String },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     createdAt: { type: Date, default: Date.now }
 });
 

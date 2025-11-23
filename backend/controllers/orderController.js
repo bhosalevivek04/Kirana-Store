@@ -19,9 +19,9 @@ exports.createOrder = async (req, res) => {
                 });
             }
 
-            // Reduce stock
-            product.stock -= item.quantity;
-            await product.save();
+            // Reduce stock - REMOVED as per requirement to defer until delivery
+            // product.stock -= item.quantity;
+            // await product.save();
         }
 
         const order = new Order({
@@ -62,7 +62,33 @@ exports.updateOrderStatus = async (req, res) => {
         if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
 
         const { status } = req.body;
-        const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        // If marking as delivered, reduce stock
+        if (status === 'delivered' && order.status !== 'delivered') {
+            for (const item of order.items) {
+                const product = await Product.findById(item.product);
+
+                if (!product) {
+                    return res.status(404).json({ message: `Product not found for item in order` });
+                }
+
+                if (product.stock < item.quantity) {
+                    return res.status(400).json({
+                        message: `Cannot deliver order. Insufficient stock for ${product.name}. Available: ${product.stock}, Required: ${item.quantity}`
+                    });
+                }
+
+                product.stock -= item.quantity;
+                await product.save();
+            }
+        }
+
+        order.status = status;
+        await order.save();
+
         res.json(order);
     } catch (error) {
         res.status(400).json({ message: error.message });
