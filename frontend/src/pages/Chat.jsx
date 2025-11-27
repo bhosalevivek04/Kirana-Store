@@ -9,19 +9,19 @@ const Chat = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        fetchHistory();
+        resetChat();
     }, []);
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
-    const fetchHistory = async () => {
+    const resetChat = async () => {
         try {
-            const res = await api.get('/chat/history');
+            const res = await api.delete('/chat/history');
             setMessages(res.data);
         } catch (error) {
-            console.error('Error fetching chat history:', error);
+            console.error('Error resetting chat history:', error);
         }
     };
 

@@ -6,11 +6,10 @@ exports.getProducts = async (req, res) => {
         // Check cache
         const cachedProducts = await redisClient.get('products');
         if (cachedProducts) {
-            console.log('Cache Hit');
             return res.json(JSON.parse(cachedProducts));
         }
 
-        console.log('Cache Miss');
+
         const products = await Product.find();
 
         // Set cache for 1 hour (3600 seconds)

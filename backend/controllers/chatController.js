@@ -116,3 +116,30 @@ exports.chat = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.resetChat = async (req, res) => {
+    try {
+        const welcomeMessage = {
+            sender: 'bot',
+            text: "Hello! I can help you with Prices, Stock, and Order Status. What would you like to do?",
+            options: ["Check Price", "Check Stock", "My Orders"]
+        };
+
+        const chatLog = await ChatLog.findOneAndUpdate(
+            { user: req.user.id },
+            {
+                $set: {
+                    messages: [welcomeMessage],
+                    context: 'IDLE',
+                    metadata: {}
+                }
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+
+        res.json(chatLog.messages);
+    } catch (error) {
+        console.error('Error resetting chat:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
