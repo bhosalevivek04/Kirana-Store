@@ -6,13 +6,19 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+const compression = require('compression');
+const morgan = require('morgan');
+
 dotenv.config();
 
 const app = express();
 
 // Middleware
+app.use(compression()); // Compress all responses
+app.use(morgan('dev')); // Log requests to console
+
 app.use(cors({
-    origin: ['http://localhost:5174'],
+    origin: process.env.FRONTEND_URL || 'http://localhost:5174',
     credentials: true
 }));
 app.use(express.json());
@@ -49,6 +55,15 @@ mongoose.connect(process.env.MONGO_URI)
 (async () => {
     await redisClient.connect();
 })();
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({
+        message: err.message || 'Internal Server Error',
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

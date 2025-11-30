@@ -8,6 +8,7 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, default: 0 },
     minStockLevel: { type: Number, default: 10 },
     imageUrl: { type: String },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now }
 });
 
