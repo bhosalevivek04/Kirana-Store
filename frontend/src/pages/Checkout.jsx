@@ -141,8 +141,8 @@ const Checkout = () => {
     };
 
     const handleCashPayment = async () => {
-        if (user?.role !== 'owner') {
-            alert('Cash payment is only available for owners.');
+        if (user?.role !== 'admin') {
+            alert('Cash payment is only available for admins.');
             return;
         }
 
@@ -216,8 +216,8 @@ const Checkout = () => {
                                 </div>
                             </button>
 
-                            {/* Cash Payment - Only for Owner */}
-                            {user?.role === 'owner' && (
+                            {/* Cash Payment - Only for Admin */}
+                            {user?.role === 'admin' && (
                                 <button
                                     onClick={() => setPaymentMethod('cash')}
                                     className={`w-full p-4 md:p-5 border-2 rounded-lg flex items-center gap-3 md:gap-4 transition-all touch-manipulation ${paymentMethod === 'cash'

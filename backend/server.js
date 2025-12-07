@@ -18,7 +18,7 @@ app.use(compression()); // Compress all responses
 app.use(morgan('dev')); // Log requests to console
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5174',
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }));
 app.use(express.json());
@@ -51,10 +51,7 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-// Connect Redis
-(async () => {
-    await redisClient.connect();
-})();
+// Redis is now auto-connected in config/redisClient.js
 
 // Global Error Handler
 app.use((err, req, res, next) => {

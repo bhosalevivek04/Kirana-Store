@@ -18,12 +18,7 @@ const Register = () => {
             const res = await api.post('/auth/register', formData);
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
-
-            if (res.data.user.role === 'owner') {
-                navigate('/dashboard');
-            } else {
-                navigate('/');
-            }
+            navigate('/');
         } catch (error) {
             alert(error.response?.data?.message || 'Registration failed');
         }
@@ -76,17 +71,7 @@ const Register = () => {
                         required
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Role</label>
-                    <select
-                        value={formData.role}
-                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 border p-2"
-                    >
-                        <option value="customer">Customer</option>
-                        <option value="owner">Store Owner</option>
-                    </select>
-                </div>
+
                 <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700">Register</button>
             </form>
             <p className="mt-4 text-center text-sm">

@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import Udhaar from './pages/Udhaar';
@@ -26,6 +27,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/admin" element={<AdminLogin />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
@@ -36,24 +38,24 @@ function App() {
             <Route path="/chat" element={<Chat />} />
             <Route path="/orders" element={<Orders />} />
 
-            {/* Owner Routes */}
+            {/* Admin Routes */}
             <Route path="/dashboard" element={
-              <ProtectedRoute role="owner">
+              <ProtectedRoute role="admin">
                 <Dashboard />
               </ProtectedRoute>
             } />
             <Route path="/inventory" element={
-              <ProtectedRoute role="owner">
+              <ProtectedRoute role="admin">
                 <Inventory />
               </ProtectedRoute>
             } />
             <Route path="/udhaar" element={
-              <ProtectedRoute role="owner">
+              <ProtectedRoute role="admin">
                 <Udhaar />
               </ProtectedRoute>
             } />
             <Route path="/order-management" element={
-              <ProtectedRoute role="owner">
+              <ProtectedRoute role="admin">
                 <OrderManagement />
               </ProtectedRoute>
             } />

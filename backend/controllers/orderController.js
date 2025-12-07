@@ -6,7 +6,7 @@ exports.createOrder = async (req, res) => {
     try {
         const { items, totalAmount, paymentMethod } = req.body;
 
-        // Validate stock availability and reduce stock
+        // Validate stock availability
         for (const item of items) {
             const product = await Product.findById(item.product);
 
@@ -20,28 +20,42 @@ exports.createOrder = async (req, res) => {
                 });
             }
 
-            // Reduce stock - REMOVED as per requirement to defer until delivery
-            // product.stock -= item.quantity;
-            // await product.save();
+            // Reduce stock immediately for cash payments (walk-in sales)
+            if (paymentMethod === 'cash') {
+                product.stock -= item.quantity;
+                await product.save();
+            }
         }
 
+        // Create order with appropriate status
         const order = new Order({
             user: req.user.id,
             items,
             totalAmount,
-            paymentMethod
+            paymentMethod,
+            status: paymentMethod === 'cash' ? 'completed' : 'pending' // Cash orders are completed immediately
         });
         await order.save();
+
+        // Invalidate product cache if stock was reduced
+        if (paymentMethod === 'cash') {
+            const keys = await redisClient.keys('products:*');
+            if (keys.length > 0) {
+                await redisClient.del(keys);
+            }
+        }
+
         res.status(201).json(order);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
+
 exports.getOrders = async (req, res) => {
     try {
         let orders;
-        if (req.user.role === 'owner') {
+        if (req.user.role === 'admin') {
             orders = await Order.find()
                 .populate('user', 'name email phone')
                 .populate('items.product', 'name price imageUrl')
@@ -60,7 +74,7 @@ exports.getOrders = async (req, res) => {
 
 exports.updateOrderStatus = async (req, res) => {
     try {
-        if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
 
         const { status } = req.body;
 
@@ -100,7 +114,7 @@ exports.updateOrderStatus = async (req, res) => {
 
 exports.deleteOrder = async (req, res) => {
     try {
-        if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
 
         const order = await Order.findByIdAndDelete(req.params.id);
         if (!order) {

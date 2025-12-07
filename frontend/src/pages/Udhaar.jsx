@@ -86,11 +86,18 @@ const Udhaar = () => {
     const handleRecordPayment = async (e) => {
         e.preventDefault();
         try {
+
+            const amount = parseFloat(paymentAmount);
+            if (amount <= 0 || amount > currentCustomer.totalCredit) {
+                alert('Invalid payment amount. Amount must be greater than 0 and less than or equal to outstanding credit.');
+                return;
+            }
+
             await api.post('/credits', {
                 userId: currentCustomer.userId,
-                amount: parseFloat(paymentAmount),
+                amount: amount,
                 type: 'payment',
-                description: `Payment Received - ₹${paymentAmount}`
+                description: `Payment Received - ₹${amount}`
             });
             setShowPaymentModal(false);
             setPaymentAmount('');

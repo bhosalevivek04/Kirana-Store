@@ -130,7 +130,9 @@ const Navbar = () => {
                                     <Menu size={24} />
                                 </button>
                             )}
-                            <Link to="/" className="text-xl font-bold whitespace-nowrap" onClick={clearSearch}>Kirana Store</Link>
+                            <Link to="/" className="text-xl font-bold whitespace-nowrap" onClick={clearSearch}>
+                                {import.meta.env.VITE_STORE_NAME || 'Kirana Store'}
+                            </Link>
                         </div>
 
                         {/* Center: Search Bar (Desktop) */}
@@ -227,29 +229,25 @@ const Navbar = () => {
                                         <span>Hi, {user.name}</span>
                                     </Link>
 
-                                    {user.role === 'customer' && (
-                                        <>
-                                            {/* Mobile Icons - Always Visible */}
-                                            <NavIcon to="/cart" icon={ShoppingCart} label="Cart" />
-                                            <NavIcon to="/orders" icon={Package} label="My Orders" className="md:hidden" />
-                                            <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="md:hidden" />
-
-                                            {/* Desktop Links - Hidden on Mobile */}
-                                            <NavIcon to="/orders" icon={Package} label="My Orders" className="hidden md:flex" />
-                                            <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="hidden md:flex" />
-                                        </>
-                                    )}
-
-                                    {user.role === 'owner' && (
+                                    {/* Admin Navigation */}
+                                    {user.role === 'admin' && (
                                         <>
                                             {/* Desktop Links - Hidden on Mobile */}
                                             <Link to="/dashboard" className="hover:text-green-200 hidden md:inline">Dashboard</Link>
                                             <Link to="/inventory" className="hover:text-green-200 hidden md:inline">Inventory</Link>
                                             <Link to="/order-management" className="hover:text-green-200 hidden md:inline">Orders</Link>
                                             <Link to="/udhaar" className="hover:text-green-200 hidden md:inline">Udhaar</Link>
-                                            <NavIcon to="/cart" icon={ShoppingCart} label="Cart" />
                                         </>
                                     )}
+
+                                    {/* Customer Navigation (shown to all users) */}
+                                    <NavIcon to="/cart" icon={ShoppingCart} label="Cart" />
+                                    <NavIcon to="/orders" icon={Package} label="My Orders" className="md:hidden" />
+                                    <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="md:hidden" />
+
+                                    {/* Desktop Links - Hidden on Mobile */}
+                                    <NavIcon to="/orders" icon={Package} label="My Orders" className="hidden md:flex" />
+                                    <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="hidden md:flex" />
 
                                     {/* Logout - Hidden on Mobile */}
                                     <NavIcon onClick={handleLogout} icon={LogOut} label="Logout" className="hidden md:flex hover:bg-red-600" />

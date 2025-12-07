@@ -6,19 +6,29 @@ const client = redis.createClient({
 
 client.on('error', (err) => {
     if (process.env.TEST_ENV) return; // Silence errors in test
-    console.log('Redis Client Error', err)
+    console.log('⚠️  Redis Client Error (app will continue without caching):', err.message);
 });
-client.on('connect', () => console.log('Redis Client Connected'));
+
+client.on('connect', () => console.log('✅ Redis Client Connected'));
+
+// Graceful fallback - if Redis fails, provide mock functions
+const mockRedis = {
+    get: async () => null,
+    setEx: async () => { },
+    del: async () => { },
+    keys: async () => [],
+    connect: async () => { },
+    on: () => { },
+    isOpen: false
+};
 
 if (process.env.TEST_ENV) {
-    module.exports = {
-        get: async () => null,
-        setEx: async () => { },
-        del: async () => { },
-        connect: async () => { },
-        on: () => { },
-        isOpen: true
-    };
+    module.exports = mockRedis;
 } else {
+    // Try to connect, but don't crash if it fails
+    client.connect().catch(err => {
+        console.log('⚠️  Redis connection failed. Running without cache.');
+    });
+
     module.exports = client;
 }

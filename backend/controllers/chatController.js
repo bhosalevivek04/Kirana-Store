@@ -69,12 +69,10 @@ exports.chat = async (req, res) => {
 
         // STATE: SEARCH_PRICE
         else if (chatLog.context === 'SEARCH_PRICE') {
-            const products = await Product.find();
-            // Fuzzy search: Check if product name contains the message or vice versa
-            const foundProduct = products.find(p =>
-                p.name.toLowerCase().includes(lowerMsg) ||
-                lowerMsg.includes(p.name.toLowerCase())
-            );
+            // Optimized search using MongoDB regex
+            const foundProduct = await Product.findOne({
+                name: { $regex: new RegExp(lowerMsg, 'i') }
+            });
 
             if (foundProduct) {
                 botResponse = `The price of ${foundProduct.name} is ₹${foundProduct.price}.`;
@@ -88,11 +86,10 @@ exports.chat = async (req, res) => {
 
         // STATE: SEARCH_STOCK
         else if (chatLog.context === 'SEARCH_STOCK') {
-            const products = await Product.find();
-            const foundProduct = products.find(p =>
-                p.name.toLowerCase().includes(lowerMsg) ||
-                lowerMsg.includes(p.name.toLowerCase())
-            );
+            // Optimized search using MongoDB regex
+            const foundProduct = await Product.findOne({
+                name: { $regex: new RegExp(lowerMsg, 'i') }
+            });
 
             if (foundProduct) {
                 botResponse = foundProduct.stock > 0

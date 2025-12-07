@@ -13,12 +13,7 @@ const Login = () => {
             const res = await api.post('/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
-
-            if (res.data.user.role === 'owner') {
-                navigate('/dashboard');
-            } else {
-                navigate('/');
-            }
+            navigate('/');
         } catch (error) {
             alert(error.response?.data?.message || 'Login failed');
         }

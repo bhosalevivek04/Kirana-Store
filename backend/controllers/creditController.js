@@ -5,10 +5,10 @@ exports.addCreditEntry = async (req, res) => {
     try {
         const { userId, amount, type, description } = req.body;
 
-        // Owner can add entries for any user
+        // Admin can add entries for any user
         // Customer can only add entries for themselves
-        if (req.user.role === 'owner') {
-            // Owner adding entry for a customer
+        if (req.user.role === 'admin') {
+            // Admin adding entry for a customer
             const entry = new CreditLedger({
                 user: userId,
                 amount,
@@ -35,7 +35,7 @@ exports.addCreditEntry = async (req, res) => {
 
 exports.getUserCredits = async (req, res) => {
     try {
-        if (req.user.role !== 'owner' && req.user.id !== req.params.userId) {
+        if (req.user.role !== 'admin' && req.user.id !== req.params.userId) {
             return res.status(403).json({ message: 'Access denied' });
         }
 
@@ -48,7 +48,7 @@ exports.getUserCredits = async (req, res) => {
 
 exports.getAllCredits = async (req, res) => {
     try {
-        if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
 
         // Aggregate to get total credit per user
         const credits = await CreditLedger.aggregate([
@@ -89,7 +89,7 @@ exports.getAllCredits = async (req, res) => {
 // Get all credit entries (detailed transactions)
 exports.getAllCreditEntries = async (req, res) => {
     try {
-        if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
 
         const entries = await CreditLedger.find()
             .populate('user', 'name email')
@@ -103,7 +103,7 @@ exports.getAllCreditEntries = async (req, res) => {
 // Update credit entry
 exports.updateCreditEntry = async (req, res) => {
     try {
-        if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
 
         const { amount, type, description } = req.body;
         const entry = await CreditLedger.findByIdAndUpdate(
@@ -125,7 +125,7 @@ exports.updateCreditEntry = async (req, res) => {
 // Delete credit entry
 exports.deleteCreditEntry = async (req, res) => {
     try {
-        if (req.user.role !== 'owner') return res.status(403).json({ message: 'Access denied' });
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
 
         const entry = await CreditLedger.findByIdAndDelete(req.params.id);
 
@@ -138,3 +138,4 @@ exports.deleteCreditEntry = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
