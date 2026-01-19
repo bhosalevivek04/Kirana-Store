@@ -4,10 +4,19 @@ import { ShoppingCart, MessageCircle, LogOut, Package, Menu, Search, X, User } f
 import Sidebar from './Sidebar';
 import api from '../api';
 
-const NavIcon = ({ to, icon: Icon, label, onClick, className = '' }) => {
+import { useCart } from '../context/CartContext';
+
+const NavIcon = ({ to, icon: Icon, label, onClick, badge, className = '' }) => {
     const content = (
         <>
-            <Icon size={24} />
+            <div className="relative">
+                <Icon size={24} />
+                {badge > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-green-600">
+                        {badge}
+                    </span>
+                )}
+            </div>
             <span className="absolute top-full mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-lg">
                 {label}
             </span>
@@ -35,6 +44,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const user = JSON.parse(localStorage.getItem('user'));
+    const { cartCount } = useCart();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -241,7 +251,8 @@ const Navbar = () => {
                                     )}
 
                                     {/* Customer Navigation (shown to all users) */}
-                                    <NavIcon to="/cart" icon={ShoppingCart} label="Cart" />
+                                    <NavIcon to="/cart" icon={ShoppingCart} label="Cart" badge={cartCount} />
+
                                     <NavIcon to="/orders" icon={Package} label="My Orders" className="md:hidden" />
                                     <NavIcon to="/chat" icon={MessageCircle} label="Chat Support" className="md:hidden" />
 

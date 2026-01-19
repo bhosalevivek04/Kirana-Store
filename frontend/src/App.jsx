@@ -17,51 +17,55 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import { CartProvider } from './context/CartContext';
+
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <CartProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <main className="container mx-auto px-4 py-8">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/admin" element={<AdminLogin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-            {/* Customer Routes */}
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/orders" element={<Orders />} />
+              {/* Customer Routes */}
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/orders" element={<Orders />} />
 
-            {/* Admin Routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute role="admin">
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/inventory" element={
-              <ProtectedRoute role="admin">
-                <Inventory />
-              </ProtectedRoute>
-            } />
-            <Route path="/udhaar" element={
-              <ProtectedRoute role="admin">
-                <Udhaar />
-              </ProtectedRoute>
-            } />
-            <Route path="/order-management" element={
-              <ProtectedRoute role="admin">
-                <OrderManagement />
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </main>
-      </div>
+              {/* Admin Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute role="admin">
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/inventory" element={
+                <ProtectedRoute role="admin">
+                  <Inventory />
+                </ProtectedRoute>
+              } />
+              <Route path="/udhaar" element={
+                <ProtectedRoute role="admin">
+                  <Udhaar />
+                </ProtectedRoute>
+              } />
+              <Route path="/order-management" element={
+                <ProtectedRoute role="admin">
+                  <OrderManagement />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </main>
+        </div>
+      </CartProvider>
     </Router>
   );
 }

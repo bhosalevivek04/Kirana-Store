@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api';
+import { useCart } from '../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 
 const Home = () => {
@@ -100,14 +101,15 @@ const Home = () => {
     };
 
     const user = JSON.parse(localStorage.getItem('user'));
+    const { addToCart } = useCart();
 
-    const addToCart = (product) => {
+    const handleAddToCart = (product) => {
         if (!user) {
             alert('Please login to add items to cart');
             window.location.href = '/login';
             return;
         }
-        // if (user?.role === 'owner') return; // REMOVED: Owner can now add to cart
+
         if (product.stock === 0) {
             alert('Product is out of stock!');
             return;
@@ -120,23 +122,7 @@ const Home = () => {
             return;
         }
 
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItem = cart.find(item => item._id === product._id);
-
-        if (existingItem) {
-            const newQuantity = existingItem.quantity + qtyToAdd;
-            if (newQuantity > product.stock) {
-                alert(`Cannot add more than ${product.stock} items!`);
-                return;
-            }
-            cart = cart.map(item =>
-                item._id === product._id ? { ...item, quantity: newQuantity } : item
-            );
-        } else {
-            cart.push({ ...product, quantity: qtyToAdd });
-        }
-
-        localStorage.setItem('cart', JSON.stringify(cart));
+        addToCart(product, qtyToAdd);
         alert(`Added ${qtyToAdd} item(s) to cart!`);
 
         // Reset quantity to 1 after adding
@@ -276,7 +262,7 @@ const Home = () => {
                                             </div>
 
                                             <button
-                                                onClick={() => addToCart(product)}
+                                                onClick={() => handleAddToCart(product)}
                                                 className="w-full py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 font-semibold text-xs transition-colors"
                                             >
                                                 Add
@@ -393,7 +379,7 @@ const Home = () => {
 
                                             <button
                                                 onClick={() => {
-                                                    addToCart(selectedProduct);
+                                                    handleAddToCart(selectedProduct);
                                                     setSelectedProduct(null);
                                                 }}
                                                 className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg transition-colors"

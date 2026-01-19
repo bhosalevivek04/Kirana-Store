@@ -1,34 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Trash, Plus, Minus } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-    const [cart, setCart] = useState([]);
+    const { cart, updateQuantity, removeFromCart, cartTotal } = useCart();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-        setCart(storedCart);
-    }, []);
-
-    const updateQuantity = (id, delta) => {
-        const newCart = cart.map(item => {
-            if (item._id === id) {
-                return { ...item, quantity: Math.max(1, item.quantity + delta) };
-            }
-            return item;
-        });
-        setCart(newCart);
-        localStorage.setItem('cart', JSON.stringify(newCart));
-    };
-
-    const removeItem = (id) => {
-        const newCart = cart.filter(item => item._id !== id);
-        setCart(newCart);
-        localStorage.setItem('cart', JSON.stringify(newCart));
-    };
-
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     if (cart.length === 0) {
         return (
@@ -77,7 +53,7 @@ const Cart = () => {
                                 </button>
                             </div>
                             <button
-                                onClick={() => removeItem(item._id)}
+                                onClick={() => removeFromCart(item._id)}
                                 className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg touch-manipulation"
                             >
                                 <Trash size={20} />
@@ -90,7 +66,7 @@ const Cart = () => {
                 <div className="p-4 md:p-6 bg-gray-50">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-xl md:text-2xl font-bold w-full sm:w-auto text-center sm:text-left">
-                            Total: ₹{total}
+                            Total: ₹{cartTotal}
                         </div>
                         <button
                             onClick={() => navigate('/checkout')}
