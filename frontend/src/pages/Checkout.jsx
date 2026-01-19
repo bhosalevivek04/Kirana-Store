@@ -33,7 +33,7 @@ const Checkout = () => {
         if (!phoneNumber) return;
 
         try {
-            await api.put(`/ users / profile`, { phone: phoneNumber });
+            await api.put(`/users/profile`, { phone: phoneNumber });
 
             const updatedUser = { ...user, phone: phoneNumber };
             localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -207,13 +207,13 @@ const Checkout = () => {
                             {/* Online Payment */}
                             <button
                                 onClick={() => setPaymentMethod('online')}
-                                className={`w - full p - 4 md: p - 5 border - 2 rounded - lg flex items - center gap - 3 md: gap - 4 transition - all touch - manipulation ${paymentMethod === 'online'
+                                className={`w-full p-4 md:p-5 border-2 rounded-lg flex items-center gap-3 md:gap-4 transition-all touch-manipulation ${paymentMethod === 'online'
                                     ? 'border-green-600 bg-green-50'
                                     : 'border-gray-200 hover:border-green-300'
-                                    } `}
+                                    }`}
                             >
-                                <div className={`w - 5 h - 5 md: w - 6 md: h - 6 rounded - full border - 2 flex items - center justify - center ${paymentMethod === 'online' ? 'border-green-600' : 'border-gray-300'
-                                    } `}>
+                                <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'online' ? 'border-green-600' : 'border-gray-300'
+                                    }`}>
                                     {paymentMethod === 'online' && (
                                         <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-600 rounded-full"></div>
                                     )}
@@ -229,13 +229,13 @@ const Checkout = () => {
                             {user?.role === 'admin' && (
                                 <button
                                     onClick={() => setPaymentMethod('cash')}
-                                    className={`w - full p - 4 md: p - 5 border - 2 rounded - lg flex items - center gap - 3 md: gap - 4 transition - all touch - manipulation ${paymentMethod === 'cash'
+                                    className={`w-full p-4 md:p-5 border-2 rounded-lg flex items-center gap-3 md:gap-4 transition-all touch-manipulation ${paymentMethod === 'cash'
                                         ? 'border-green-600 bg-green-50'
                                         : 'border-gray-200 hover:border-green-300'
-                                        } `}
+                                        }`}
                                 >
-                                    <div className={`w - 5 h - 5 md: w - 6 md: h - 6 rounded - full border - 2 flex items - center justify - center ${paymentMethod === 'cash' ? 'border-green-600' : 'border-gray-300'
-                                        } `}>
+                                    <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cash' ? 'border-green-600' : 'border-gray-300'
+                                        }`}>
                                         {paymentMethod === 'cash' && (
                                             <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-600 rounded-full"></div>
                                         )}
@@ -251,13 +251,13 @@ const Checkout = () => {
                             {/* Credit/Udhaar Payment */}
                             <button
                                 onClick={() => setPaymentMethod('credit')}
-                                className={`w - full p - 4 md: p - 5 border - 2 rounded - lg flex items - center gap - 3 md: gap - 4 transition - all touch - manipulation ${paymentMethod === 'credit'
+                                className={`w-full p-4 md:p-5 border-2 rounded-lg flex items-center gap-3 md:gap-4 transition-all touch-manipulation ${paymentMethod === 'credit'
                                     ? 'border-green-600 bg-green-50'
                                     : 'border-gray-200 hover:border-green-300'
-                                    } `}
+                                    }`}
                             >
-                                <div className={`w - 5 h - 5 md: w - 6 md: h - 6 rounded - full border - 2 flex items - center justify - center ${paymentMethod === 'credit' ? 'border-green-600' : 'border-gray-300'
-                                    } `}>
+                                <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'credit' ? 'border-green-600' : 'border-gray-300'
+                                    }`}>
                                     {paymentMethod === 'credit' && (
                                         <div className="w-3 h-3 md:w-3.5 md:h-3.5 bg-green-600 rounded-full"></div>
                                     )}

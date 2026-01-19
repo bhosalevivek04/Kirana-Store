@@ -86,7 +86,7 @@ const Profile = () => {
 
             <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
                 {message.text && (
-                    <div className={`p - 4 rounded - lg mb - 6 ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'} `}>
+                    <div className={`p-4 rounded-lg mb-6 ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
                         {message.text}
                     </div>
                 )}
