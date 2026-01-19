@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const logger = require('../config/logger');
 
 exports.register = async (req, res) => {
     try {
