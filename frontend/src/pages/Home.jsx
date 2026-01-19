@@ -106,7 +106,9 @@ const Home = () => {
     const { addToCart } = useCart();
 
     const handleAddToCart = (product, e) => {
-        e.stopPropagation();
+        if (e && e.stopPropagation) {
+            e.stopPropagation();
+        }
         if (!localStorage.getItem('token')) {
             toast.info('Please login to add items to cart');
             return;
@@ -264,7 +266,7 @@ const Home = () => {
                                             </div>
 
                                             <button
-                                                onClick={() => handleAddToCart(product)}
+                                                onClick={(e) => handleAddToCart(product, e)}
                                                 className="w-full py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 font-semibold text-xs transition-colors"
                                             >
                                                 Add
@@ -380,8 +382,8 @@ const Home = () => {
                                             </div>
 
                                             <button
-                                                onClick={() => {
-                                                    handleAddToCart(selectedProduct);
+                                                onClick={(e) => {
+                                                    handleAddToCart(selectedProduct, e);
                                                     setSelectedProduct(null);
                                                 }}
                                                 className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg transition-colors"
