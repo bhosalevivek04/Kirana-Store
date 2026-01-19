@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../api';
 import { Send, Bot, User, ArrowLeft, Trash2 } from 'lucide-react';
 import logger from '../utils/logger';
+import { toast } from 'react-toastify';
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
@@ -10,22 +11,40 @@ const Chat = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        resetChat();
+        fetchHistory();
     }, []);
+
+    const fetchHistory = async () => {
+        try {
+            const res = await api.get('/chat/history');
+            if (res.data && res.data.length > 0) {
+                setMessages(res.data);
+            } else {
+                // If no history, do an initial reset to get welcome message
+                const resetRes = await api.post('/chat/reset');
+                setMessages(resetRes.data);
+            }
+        } catch (error) {
+            logger.error('Error fetching chat history:', error);
+        }
+    };
+
+    const handleReset = async () => {
+        try {
+            const res = await api.post('/chat/reset');
+            setMessages(res.data);
+            toast.success('Conversation restarted');
+        } catch (error) {
+            logger.error('Error resetting chat:', error);
+            toast.error('Failed to reset chat');
+        }
+    };
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
-    const resetChat = async () => {
-        if (!window.confirm("Start a new conversation?")) return;
-        try {
-            const res = await api.post('/chat/reset');
-            setMessages(res.data); // Reset should return welcome message
-        } catch (error) {
-            logger.error('Error resetting chat history:', error);
-        }
-    };
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,9 +80,18 @@ const Chat = () => {
 
     return (
         <div className="max-w-2xl mx-auto h-[600px] flex flex-col bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-green-600 text-white p-4 flex items-center">
-                <Bot className="mr-2" />
-                <h2 className="text-xl font-bold">Kirana AI Assistant</h2>
+            <div className="bg-green-600 text-white p-4 flex items-center justify-between">
+                <div className="flex items-center">
+                    <Bot className="mr-2" />
+                    <h2 className="text-xl font-bold">Kirana AI Assistant</h2>
+                </div>
+                <button
+                    onClick={handleReset}
+                    className="p-1.5 hover:bg-green-700 rounded-full transition-colors"
+                    title="Reset Chat"
+                >
+                    <Trash2 size={20} />
+                </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
