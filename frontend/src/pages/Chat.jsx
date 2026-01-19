@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../api';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, ArrowLeft, Trash2 } from 'lucide-react';
+import logger from '../utils/logger';
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
@@ -17,11 +18,12 @@ const Chat = () => {
     }, [messages]);
 
     const resetChat = async () => {
+        if (!window.confirm("Start a new conversation?")) return;
         try {
-            const res = await api.delete('/chat/history');
-            setMessages(res.data);
+            const res = await api.post('/chat/reset');
+            setMessages(res.data); // Reset should return welcome message
         } catch (error) {
-            console.error('Error resetting chat history:', error);
+            logger.error('Error resetting chat history:', error);
         }
     };
 
@@ -50,7 +52,7 @@ const Chat = () => {
             const res = await api.post('/chat', { message: text });
             setMessages(res.data.history);
         } catch (error) {
-            console.error('Error sending message:', error);
+            logger.error('Error sending message:', error);
             setMessages(prev => [...prev, { sender: 'bot', text: 'Sorry, I am having trouble connecting.' }]);
         } finally {
             setLoading(false);

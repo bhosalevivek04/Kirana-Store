@@ -44,18 +44,20 @@ app.use('/api/credits', require('./routes/creditRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 
+const logger = require('./config/logger');
+
 const redisClient = require('./config/redisClient');
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log(err));
+    .then(() => logger.info('MongoDB Connected'))
+    .catch(err => logger.error('MongoDB Connection Error:', err));
 
 // Redis is now auto-connected in config/redisClient.js
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger.error(err.message, { stack: err.stack });
     res.status(err.status || 500).json({
         message: err.message || 'Internal Server Error',
         stack: process.env.NODE_ENV === 'production' ? null : err.stack
@@ -63,4 +65,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));

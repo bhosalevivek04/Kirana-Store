@@ -21,13 +21,14 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mailersend": "^2.6.0",
     "mongoose": "^9.0.0",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
-    "nodemailer": "^7.0.10",
     "nodemon": "^3.1.11",
     "razorpay": "^2.9.6",
-    "redis": "^5.10.0"
+    "redis": "^5.10.0",
+    "winston": "^3.19.0"
   }
 }

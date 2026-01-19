@@ -1,10 +1,12 @@
 import { useState, useEffect, Fragment } from 'react';
 import api from '../api';
 import { Plus, Edit, Trash, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import logger from '../utils/logger';
 
 const Udhaar = () => {
     const [credits, setCredits] = useState([]);
     const [entries, setEntries] = useState([]);
+    const [customerEntries, setCustomerEntries] = useState({});
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -23,10 +25,10 @@ const Udhaar = () => {
 
     const fetchCredits = async () => {
         try {
-            const res = await api.get('/credits');
+            const res = await api.get('/credits/summary');
             setCredits(res.data);
         } catch (error) {
-            console.error('Error fetching credits:', error);
+            logger.error('Error fetching credits:', error);
         } finally {
             setLoading(false);
         }
@@ -37,7 +39,16 @@ const Udhaar = () => {
             const res = await api.get('/credits/entries');
             setEntries(res.data);
         } catch (error) {
-            console.error('Error fetching entries:', error);
+            logger.error('Error fetching entries:', error);
+        }
+    };
+
+    const fetchCustomerEntries = async (customerId) => {
+        try {
+            const res = await api.get(`/credits/${customerId}`);
+            setCustomerEntries(prev => ({ ...prev, [customerId]: res.data }));
+        } catch (error) {
+            logger.error('Error fetching entries:', error);
         }
     };
 

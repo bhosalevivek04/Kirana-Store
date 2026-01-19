@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api';
 import { useCart } from '../context/CartContext';
+import logger from '../utils/logger';
 import { ShoppingCart } from 'lucide-react';
 
 const Home = () => {

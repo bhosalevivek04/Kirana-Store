@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { Package, Calendar, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, Search, Filter } from 'lucide-react';
+import logger from '../utils/logger';
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState([]); // Added new state
     const [expandedOrder, setExpandedOrder] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const res = await api.get('/orders/my-orders'); // API endpoint changed
+                setOrders(res.data);
+                setFilteredOrders(res.data); // Set filtered orders
+            } catch (error) {
+                logger.error('Error fetching orders:', error); // Replaced console.error with logger.error
+            } finally { // Added finally block
+                setLoading(false);
+            }
+        };
         fetchOrders();
     }, []);
-
-    const fetchOrders = async () => {
-        try {
-            const res = await api.get('/orders');
-            setOrders(res.data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-            setLoading(false);
-        }
-    };
 
     const getStatusColor = (status) => {
         switch (status) {

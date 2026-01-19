@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { User, Mail, Phone, Lock, Save } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save, Edit2 } from 'lucide-react';
+import logger from '../utils/logger';
 
 const Profile = () => {
     const [user, setUser] = useState({
@@ -9,6 +10,11 @@ const Profile = () => {
         phone: '',
         role: ''
     });
+    const [formData, setFormData] = useState({ // Added formData state
+        name: '',
+        email: '',
+        phone: ''
+    });
     const [passwords, setPasswords] = useState({
         currentPassword: '',
         newPassword: '',
@@ -16,20 +22,25 @@ const Profile = () => {
     });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [isEditing, setIsEditing] = useState(false); // Added isEditing state
 
     useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const res = await api.get('/users/profile');
+                setUser(res.data);
+                setFormData({
+                    name: res.data.name,
+                    email: res.data.email,
+                    phone: res.data.phone || ''
+                });
+            } catch (error) {
+                logger.error('Error fetching profile:', error);
+                setMessage({ type: 'error', text: 'Failed to load profile' });
+            }
+        };
         fetchProfile();
     }, []);
-
-    const fetchProfile = async () => {
-        try {
-            const res = await api.get('/users/profile');
-            setUser(res.data);
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            setMessage({ type: 'error', text: 'Failed to load profile' });
-        }
-    };
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
@@ -52,16 +63,17 @@ const Profile = () => {
             }
 
             const res = await api.put('/users/profile', updateData);
-            setUser(prev => ({ ...prev, ...res.data }));
+            setUser(res.data); // Changed from prev => ({ ...prev, ...res.data })
+            setIsEditing(false); // Added this line
 
             // Update local storage if name/phone changed
             const storedUser = JSON.parse(localStorage.getItem('user'));
             localStorage.setItem('user', JSON.stringify({ ...storedUser, ...res.data }));
 
             setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
-            setMessage({ type: 'success', text: 'Profile updated successfully' });
+            setMessage({ type: 'success', text: 'Profile updated successfully!' }); // Changed message text
         } catch (error) {
-            console.error('Error updating profile:', error);
+            logger.error('Error updating profile:', error); // Replaced console.error
             setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to update profile' });
         } finally {
             setLoading(false);
@@ -74,7 +86,7 @@ const Profile = () => {
 
             <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
                 {message.text && (
-                    <div className={`p-4 rounded-lg mb-6 ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                    <div className={`p - 4 rounded - lg mb - 6 ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'} `}>
                         {message.text}
                     </div>
                 )}

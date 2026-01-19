@@ -1,50 +1,27 @@
-const nodemailer = require('nodemailer');
+const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
 
 const sendEmail = async (options) => {
-    let transporter;
+    const mailerSend = new MailerSend({
+        apiKey: process.env.MAILERSEND_API_KEY,
+    });
 
-    // Check if SMTP credentials exist in .env
-    if (process.env.SMTP_HOST && process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
-        transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT || 587,
-            secure: false, // true for 465, false for other ports
-            auth: {
-                user: process.env.SMTP_EMAIL,
-                pass: process.env.SMTP_PASSWORD
-            }
-        });
-    } else {
-        // Use Ethereal Email (Fake SMTP) for testing
-        console.log('⚠️ No SMTP credentials found. Using Ethereal Email for testing.');
-        const testAccount = await nodemailer.createTestAccount();
+    // Sender must match the verified domain in MailerSend
+    const sentFrom = new Sender("noreply@test-z0vklo6ze0el7qrx.mlsender.net", "Kirana Store");
+    const recipients = [new Recipient(options.email)];
 
-        transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
-            secure: false,
-            auth: {
-                user: testAccount.user,
-                pass: testAccount.pass
-            }
-        });
-    }
+    const emailParams = new EmailParams()
+        .setFrom(sentFrom)
+        .setTo(recipients)
+        .setSubject(options.subject)
+        .setText(options.message)
+        .setHtml(options.message.replace(/\n/g, '<br>'));
 
-    // Define email options
-    const mailOptions = {
-        from: process.env.FROM_NAME ? `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>` : '"Kirana Store" <noreply@kiranastore.com>',
-        to: options.email,
-        subject: options.subject,
-        text: options.message
-    };
-
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
-
-    // If using Ethereal, log the preview URL
-    if (!process.env.SMTP_EMAIL) {
-        console.log('📨 Email sent via Ethereal!');
-        console.log('👀 Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    try {
+        await mailerSend.email.send(emailParams);
+        logger.info(`📧 MailerSend: Email sent to ${options.email}`);
+    } catch (error) {
+        logger.error("❌ MailerSend Error:", error);
+        throw error;
     }
 };
 

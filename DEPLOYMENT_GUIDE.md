@@ -22,11 +22,8 @@ JWT_SECRET=your_unique_secret_key_here
 # Frontend URL
 FRONTEND_URL=http://localhost:5174
 
-# Email Configuration (for password reset)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
+# MailerSend Configuration (Password Reset)
+MAILERSEND_API_KEY=mlsn.xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ## Frontend (.env)

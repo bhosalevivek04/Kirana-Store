@@ -109,8 +109,8 @@ exports.chat = async (req, res) => {
 
         res.json({ response: botResponse, history: chatLog.messages });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: error.message });
+        logger.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -136,7 +136,7 @@ exports.resetChat = async (req, res) => {
 
         res.json(chatLog.messages);
     } catch (error) {
-        console.error('Error resetting chat:', error);
+        logger.error('Error resetting chat:', error);
         res.status(500).json({ message: error.message });
     }
 };

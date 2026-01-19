@@ -1,4 +1,5 @@
 const redis = require('redis');
+const logger = require('./logger');
 
 const client = redis.createClient({
     url: process.env.REDIS_URI
@@ -6,10 +7,10 @@ const client = redis.createClient({
 
 client.on('error', (err) => {
     if (process.env.TEST_ENV) return; // Silence errors in test
-    console.log('⚠️  Redis Client Error (app will continue without caching):', err.message);
+    logger.warn('⚠️  Redis Client Error (app will continue without caching):', err.message);
 });
 
-client.on('connect', () => console.log('✅ Redis Client Connected'));
+client.on('connect', () => logger.info('✅ Redis Client Connected'));
 
 // Graceful fallback - if Redis fails, provide mock functions
 const mockRedis = {

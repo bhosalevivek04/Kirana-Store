@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Package, User, Calendar, CreditCard, CheckCircle, X, Trash2, ChevronDown, ChevronUp, ExternalLink, MessageCircle, DollarSign } from 'lucide-react';
+import { Package, User, Calendar, CreditCard, CheckCircle, X, Trash2, ChevronDown, ChevronUp, ExternalLink, MessageCircle, DollarSign, Clock, XCircle, Search, Filter, Edit } from 'lucide-react';
 import api from '../api';
 import { Link } from 'react-router-dom';
+import logger from '../utils/logger';
 
 const OrderManagement = () => {
     const [orders, setOrders] = useState([]);
@@ -21,20 +22,21 @@ const OrderManagement = () => {
 
     const fetchData = async () => {
         try {
-            // Fetch orders
-            const ordersRes = await api.get('/orders');
+            const [ordersRes, creditsRes] = await Promise.all([
+                api.get('/orders'),
+                api.get('/credits')
+            ]);
             setOrders(ordersRes.data);
+            setFilteredOrders(ordersRes.data);
 
-            // Fetch customer credits
-            const creditsRes = await api.get('/credits');
             const creditMap = {};
             creditsRes.data.forEach(credit => {
                 creditMap[credit.userId] = credit.totalCredit;
             });
             setCustomerCredits(creditMap);
+
         } catch (error) {
-            console.error('Error fetching data:', error);
-            alert('Failed to fetch orders');
+            logger.error('Error fetching data:', error);
         } finally {
             setLoading(false);
         }
@@ -51,23 +53,18 @@ const OrderManagement = () => {
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
             await api.put(`/orders/${orderId}/status`, { status: newStatus });
-            alert(`Order status updated to ${newStatus}`);
             fetchData(); // Refresh data
         } catch (error) {
-            console.error('Error updating order status:', error);
-            console.error('Error updating order status:', error);
-            alert(error.response?.data?.message || 'Failed to update order status');
+            logger.error('Error updating order status:', error);
         }
     };
 
     const deleteOrder = async (orderId) => {
         try {
             await api.delete(`/orders/${orderId}`);
-            alert('Order deleted successfully');
             fetchData(); // Refresh data
         } catch (error) {
-            console.error('Error deleting order:', error);
-            alert('Failed to delete order');
+            logger.error('Error deleting order:', error);
         }
     };
 

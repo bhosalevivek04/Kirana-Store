@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { Plus, Edit, Trash, AlertTriangle, Upload, X } from 'lucide-react';
+import { Package, Plus, Edit, Trash2, Search } from 'lucide-react';
+import logger from '../utils/logger';
 
 const Inventory = () => {
     const [products, setProducts] = useState([]);
@@ -19,8 +20,11 @@ const Inventory = () => {
         try {
             const res = await api.get('/products');
             setProducts(res.data);
+            setFilteredProducts(res.data);
         } catch (error) {
-            console.error('Error fetching products:', error);
+            logger.error('Error fetching products:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
