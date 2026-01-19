@@ -1,4 +1,5 @@
 const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
+const logger = require("../config/logger");
 
 const sendEmail = async (options) => {
     const mailerSend = new MailerSend({
