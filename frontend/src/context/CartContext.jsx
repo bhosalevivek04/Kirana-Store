@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const CartContext = createContext();
 
@@ -24,9 +25,10 @@ export const CartProvider = ({ children }) => {
             if (existingItem) {
                 // Check stock limit
                 if (existingItem.quantity + quantity > product.stock) {
-                    alert(`Cannot add more than ${product.stock} items!`);
+                    toast.error(`Cannot add more than ${product.stock} items!`);
                     return prevCart;
                 }
+                toast.success('Cart updated!');
                 return prevCart.map(item =>
                     item._id === product._id
                         ? { ...item, quantity: item.quantity + quantity }
@@ -34,9 +36,10 @@ export const CartProvider = ({ children }) => {
                 );
             } else {
                 if (quantity > product.stock) {
-                    alert(`Only ${product.stock} items available!`);
+                    toast.error(`Only ${product.stock} items available!`);
                     return prevCart;
                 }
+                toast.success('Added to cart!');
                 return [...prevCart, { ...product, quantity }];
             }
         });
@@ -54,7 +57,7 @@ export const CartProvider = ({ children }) => {
                     // Ideally we should check stock here too, but simplest is to trust the decrement/increment buttons which usually have limits
                     // But strictly speaking, we can check item.stock if avail.
                     if (delta > 0 && item.stock && newQuantity > item.stock) {
-                        alert(`Max stock reached!`);
+                        toast.error(`Max stock reached!`);
                         return item;
                     }
                     return { ...item, quantity: newQuantity };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api';
 import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 import logger from '../utils/logger';
 import { ShoppingCart } from 'lucide-react';
 
@@ -104,30 +105,30 @@ const Home = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     const { addToCart } = useCart();
 
-    const handleAddToCart = (product) => {
-        if (!user) {
-            alert('Please login to add items to cart');
-            window.location.href = '/login';
+    const handleAddToCart = (product, e) => {
+        e.stopPropagation();
+        if (!localStorage.getItem('token')) {
+            toast.info('Please login to add items to cart');
             return;
         }
 
-        if (product.stock === 0) {
-            alert('Product is out of stock!');
+        if (product.stock <= 0) {
+            toast.error('Product is out of stock!');
             return;
         }
 
-        const qtyToAdd = getQuantity(product._id);
+        const qtyToAdd = quantities[product._id] || 1;
 
         if (qtyToAdd > product.stock) {
-            alert(`Only ${product.stock} items available in stock!`);
+            toast.error(`Only ${product.stock} items available in stock!`);
             return;
         }
 
         addToCart(product, qtyToAdd);
-        alert(`Added ${qtyToAdd} item(s) to cart!`);
+        // toast.success(`Added ${qtyToAdd} item(s) to cart!`); // addToCart already toasts, removed duplicate
 
-        // Reset quantity to 1 after adding
-        setQuantities(prev => ({ ...prev, [product._id]: 1 }));
+        // Reset quantity
+        setQuantities({ ...quantities, [product._id]: 1 });
     };
 
     const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];

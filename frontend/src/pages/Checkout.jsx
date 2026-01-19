@@ -4,6 +4,7 @@ import api from '../api';
 import { CreditCard, Wallet, Banknote } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import logger from '../utils/logger';
+import { toast } from 'react-toastify';
 
 const Checkout = () => {
     const [cart, setCart] = useState([]);
@@ -43,7 +44,7 @@ const Checkout = () => {
             else handleCashPayment();
         } catch (error) {
             logger.error('Failed to update phone:', error);
-            alert('Failed to save phone number. Please try again.');
+            toast.error('Failed to save phone number. Please try again.');
         }
     };
 
@@ -88,11 +89,11 @@ const Checkout = () => {
 
                         // 5. Clear Cart and Redirect
                         clearCart();
-                        alert('Payment Successful! Order Placed.');
+                        toast.success('Payment Successful! Order Placed.');
                         navigate('/orders');
                     } catch (error) {
                         logger.error('Payment verification failed:', error);
-                        alert('Payment verification failed');
+                        toast.error('Payment verification failed');
                     }
                 },
                 prefill: {
@@ -108,12 +109,12 @@ const Checkout = () => {
             const rzp1 = new window.Razorpay(options);
             rzp1.on('payment.failed', function (response) {
                 logger.error('Payment failed:', response.error);
-                alert(response.error.description);
+                toast.error(response.error.description);
             });
             rzp1.open();
         } catch (error) {
             logger.error('Payment error:', error);
-            alert('Something went wrong. Please try again.');
+            toast.error('Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -138,11 +139,11 @@ const Checkout = () => {
 
             // 3. Clear Cart and Redirect
             clearCart();
-            alert('Order placed on credit! You can pay later.');
+            toast.success('Order placed on credit! You can pay later.');
             navigate('/orders');
         } catch (error) {
             logger.error('Credit order error:', error);
-            alert(error.response?.data?.message || 'Failed to place credit order');
+            toast.error(error.response?.data?.message || 'Failed to place credit order');
         } finally {
             setLoading(false);
         }
@@ -150,7 +151,7 @@ const Checkout = () => {
 
     const handleCashPayment = async () => {
         if (user?.role !== 'admin') {
-            alert('Cash payment is only available for admins.');
+            toast.error('Cash payment is only available for admins.');
             return;
         }
 
@@ -165,11 +166,11 @@ const Checkout = () => {
 
             // 2. Clear Cart and Redirect
             clearCart();
-            alert('Order placed successfully! Please pay cash at the counter.');
+            toast.success('Order placed successfully! Please pay cash at the counter.');
             navigate('/orders');
         } catch (error) {
             logger.error('Cash order error:', error);
-            alert(error.response?.data?.message || 'Failed to place cash order');
+            toast.error(error.response?.data?.message || 'Failed to place cash order');
         } finally {
             setLoading(false);
         }
@@ -207,8 +208,8 @@ const Checkout = () => {
                             <button
                                 onClick={() => setPaymentMethod('online')}
                                 className={`w - full p - 4 md: p - 5 border - 2 rounded - lg flex items - center gap - 3 md: gap - 4 transition - all touch - manipulation ${paymentMethod === 'online'
-                                        ? 'border-green-600 bg-green-50'
-                                        : 'border-gray-200 hover:border-green-300'
+                                    ? 'border-green-600 bg-green-50'
+                                    : 'border-gray-200 hover:border-green-300'
                                     } `}
                             >
                                 <div className={`w - 5 h - 5 md: w - 6 md: h - 6 rounded - full border - 2 flex items - center justify - center ${paymentMethod === 'online' ? 'border-green-600' : 'border-gray-300'
@@ -229,8 +230,8 @@ const Checkout = () => {
                                 <button
                                     onClick={() => setPaymentMethod('cash')}
                                     className={`w - full p - 4 md: p - 5 border - 2 rounded - lg flex items - center gap - 3 md: gap - 4 transition - all touch - manipulation ${paymentMethod === 'cash'
-                                            ? 'border-green-600 bg-green-50'
-                                            : 'border-gray-200 hover:border-green-300'
+                                        ? 'border-green-600 bg-green-50'
+                                        : 'border-gray-200 hover:border-green-300'
                                         } `}
                                 >
                                     <div className={`w - 5 h - 5 md: w - 6 md: h - 6 rounded - full border - 2 flex items - center justify - center ${paymentMethod === 'cash' ? 'border-green-600' : 'border-gray-300'
@@ -251,8 +252,8 @@ const Checkout = () => {
                             <button
                                 onClick={() => setPaymentMethod('credit')}
                                 className={`w - full p - 4 md: p - 5 border - 2 rounded - lg flex items - center gap - 3 md: gap - 4 transition - all touch - manipulation ${paymentMethod === 'credit'
-                                        ? 'border-green-600 bg-green-50'
-                                        : 'border-gray-200 hover:border-green-300'
+                                    ? 'border-green-600 bg-green-50'
+                                    : 'border-gray-200 hover:border-green-300'
                                     } `}
                             >
                                 <div className={`w - 5 h - 5 md: w - 6 md: h - 6 rounded - full border - 2 flex items - center justify - center ${paymentMethod === 'credit' ? 'border-green-600' : 'border-gray-300'

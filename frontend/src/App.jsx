@@ -19,12 +19,16 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import { CartProvider } from './context/CartContext';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function App() {
   return (
     <Router>
       <CartProvider>
         <div className="min-h-screen bg-gray-50">
           <Navbar />
+          <ToastContainer position="top-right" autoClose={3000} />
           <main className="container mx-auto px-4 py-8">
             <Routes>
               <Route path="/" element={<Home />} />

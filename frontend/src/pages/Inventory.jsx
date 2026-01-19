@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { Package, Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Package, Plus, Edit, Trash2, Search, X, Upload, AlertTriangle, Trash } from 'lucide-react';
 import logger from '../utils/logger';
+import { toast } from 'react-toastify';
 
 const Inventory = () => {
     const [products, setProducts] = useState([]);
@@ -51,7 +52,7 @@ const Inventory = () => {
             return res.data.imageUrl;
         } catch (error) {
             setUploading(false);
-            alert('Image upload failed');
+            toast.error('Image upload failed');
             return formData.imageUrl;
         }
     };
@@ -69,8 +70,9 @@ const Inventory = () => {
             }
             fetchProducts();
             closeModal();
+            toast.success('Product saved successfully');
         } catch (error) {
-            alert('Error saving product');
+            toast.error('Error saving product');
         }
     };
 
@@ -79,8 +81,9 @@ const Inventory = () => {
             try {
                 await api.delete(`/products/${id}`);
                 fetchProducts();
+                toast.success('Product deleted');
             } catch (error) {
-                alert('Error deleting product');
+                toast.error('Error deleting product');
             }
         }
     };

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
+import { toast } from 'react-toastify';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -13,9 +14,10 @@ const Login = () => {
             const res = await api.post('/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
+            toast.success('Login Successful!');
             navigate('/');
         } catch (error) {
-            alert(error.response?.data?.message || 'Login failed');
+            toast.error(error.response?.data?.message || 'Login failed');
         }
     };
 

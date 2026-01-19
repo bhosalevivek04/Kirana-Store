@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import api from '../api';
 import { Plus, Edit, Trash, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import logger from '../utils/logger';
+import { toast } from 'react-toastify';
 
 const Udhaar = () => {
     const [credits, setCredits] = useState([]);
@@ -60,8 +61,9 @@ const Udhaar = () => {
             setNewEntry({ userId: '', amount: '', type: 'credit', description: '' });
             fetchCredits();
             fetchEntries();
+            toast.success('Entry added successfully');
         } catch (error) {
-            alert('Error adding entry');
+            toast.error('Error adding entry');
         }
     };
 
@@ -77,8 +79,9 @@ const Udhaar = () => {
             setCurrentEntry(null);
             fetchCredits();
             fetchEntries();
+            toast.success('Entry updated successfully');
         } catch (error) {
-            alert('Error updating entry');
+            toast.error('Error updating entry');
         }
     };
 
@@ -88,8 +91,9 @@ const Udhaar = () => {
                 await api.delete(`/credits/${id}`);
                 fetchCredits();
                 fetchEntries();
+                toast.success('Entry deleted successfully');
             } catch (error) {
-                alert('Error deleting entry');
+                toast.error('Error deleting entry');
             }
         }
     };
@@ -100,7 +104,7 @@ const Udhaar = () => {
 
             const amount = parseFloat(paymentAmount);
             if (amount <= 0 || amount > currentCustomer.totalCredit) {
-                alert('Invalid payment amount. Amount must be greater than 0 and less than or equal to outstanding credit.');
+                toast.error('Invalid payment amount. Amount must be greater than 0 and less than or equal to outstanding credit.');
                 return;
             }
 
@@ -115,9 +119,9 @@ const Udhaar = () => {
             setCurrentCustomer(null);
             fetchCredits();
             fetchEntries();
-            alert('Payment recorded successfully!');
+            toast.success('Payment recorded successfully!');
         } catch (error) {
-            alert('Error recording payment');
+            toast.error('Error recording payment');
         }
     };
 

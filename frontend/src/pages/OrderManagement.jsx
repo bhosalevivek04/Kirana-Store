@@ -3,6 +3,7 @@ import { Package, User, Calendar, CreditCard, CheckCircle, X, Trash2, ChevronDow
 import api from '../api';
 import { Link } from 'react-router-dom';
 import logger from '../utils/logger';
+import { toast } from 'react-toastify';
 
 const OrderManagement = () => {
     const [orders, setOrders] = useState([]);
@@ -54,8 +55,10 @@ const OrderManagement = () => {
         try {
             await api.put(`/orders/${orderId}/status`, { status: newStatus });
             fetchData(); // Refresh data
+            toast.success(`Order marked as ${newStatus}`);
         } catch (error) {
             logger.error('Error updating order status:', error);
+            toast.error('Failed to update order status');
         }
     };
 
@@ -63,8 +66,10 @@ const OrderManagement = () => {
         try {
             await api.delete(`/orders/${orderId}`);
             fetchData(); // Refresh data
+            toast.success('Order deleted successfully');
         } catch (error) {
             logger.error('Error deleting order:', error);
+            toast.error('Failed to delete order');
         }
     };
 
@@ -274,7 +279,7 @@ const OrderManagement = () => {
                                                 <button
                                                     onClick={() => {
                                                         if (!order.user?.phone) {
-                                                            alert('Customer phone number not available');
+                                                            toast.error('Customer phone number not available');
                                                             return;
                                                         }
                                                         let phone = order.user.phone.replace(/\D/g, ''); // Remove non-digits

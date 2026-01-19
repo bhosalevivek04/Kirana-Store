@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { ShieldCheck } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
@@ -15,15 +16,16 @@ const AdminLogin = () => {
 
             // Check if user is admin
             if (res.data.user.role !== 'admin') {
-                alert('Access denied. Admin credentials required.');
+                toast.error('Access denied. Admin credentials required.');
                 return;
             }
 
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
+            toast.success('Admin Login Successful!');
             navigate('/dashboard');
         } catch (error) {
-            alert(error.response?.data?.message || 'Login failed');
+            toast.error(error.response?.data?.message || 'Login failed');
         }
     };
 
