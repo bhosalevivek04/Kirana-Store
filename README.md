@@ -20,21 +20,16 @@ A modern, full-stack e-commerce solution designed for individual Kirana (grocery
   - Cash payment (admin only)
   - Credit/Udhaar (pay later)
 - **Order Tracking** - View order history and status
-- **Chat Support** - Interactive chatbot for product queries
-- **Profile Management** - Update personal information
+- **Chat Support** - Interactive AI chatbot for product queries
+- **Profile Management** - Update personal information and phone numbers
 
-### ⚡ Performance
+### ⚡ Performance & Security
 - **Redis Caching** - 50x faster product loading
+- **Centralized Logging** - Structured logging with Winston and custom frontend loggers
 - **Optimized Queries** - Efficient database operations
 - **Image CDN** - Cloudinary integration for fast image delivery
-- **Compression** - Gzip compression for faster page loads
-
-### 🔒 Security
-- **JWT Authentication** - Secure token-based auth
-- **Password Hashing** - bcrypt encryption
-- **Rate Limiting** - Protection against brute force
-- **Helmet.js** - Security headers
-- **CORS** - Controlled cross-origin requests
+- **Security Headers** - Helmet.js and structured CORS policies
+- **Rate Limiting** - Protection against brute force attacks
 
 ## 🚀 Tech Stack
 
@@ -44,14 +39,16 @@ A modern, full-stack e-commerce solution designed for individual Kirana (grocery
 - **Redis** - Caching layer
 - **Cloudinary** - Image storage
 - **Razorpay** - Payment gateway
-- **Nodemailer** - Email service
+- **MailerSend** - Transactional email service
+- **Winston** - Production-grade logging
 
 ### Frontend
 - **React** (v19) + **Vite**
-- **TailwindCSS** - Styling
-- **React Router** - Navigation
-- **Axios** - API calls
-- **Lucide React** - Icons
+- **TailwindCSS** - Premium UI styling
+- **React Router** - Single Page Application routing
+- **Axios** - API requests
+- **Lucide React** - Vector icons
+- **React Toastify** - Modern UI notifications
 
 ## 📦 Installation
 
@@ -100,6 +97,8 @@ CLOUDINARY_API_SECRET=...
 
 RAZORPAY_KEY_ID=...
 RAZORPAY_KEY_SECRET=...
+
+MAILERSEND_API_KEY=...
 
 ADMIN_EMAIL=admin@yourstore.com
 ADMIN_PASSWORD=SecurePassword123!

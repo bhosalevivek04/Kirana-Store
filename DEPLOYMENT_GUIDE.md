@@ -75,6 +75,7 @@ VITE_STORE_NAME="Your Kirana Store Name"
 6. **Deploy Frontend** (Vercel/Netlify)
    - Connect GitHub repo
    - Set VITE_API_URL to backend URL
+   - **Important:** Ensure `vercel.json` is in the frontend root to handle sub-route navigation.
    - Deploy
 
 7. **Share with Store Owner**
