@@ -5,6 +5,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 router.get('/history', protect, getChatHistory);
 router.delete('/history', protect, resetChat);
+router.post('/reset', protect, resetChat);
 router.post('/', protect, chat);
 
 module.exports = router;

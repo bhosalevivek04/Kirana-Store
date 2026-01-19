@@ -20,45 +20,7 @@ export const CartProvider = ({ children }) => {
     }, [cart]);
 
     const addToCart = (product, quantity = 1) => {
-        let shouldToast = false;
-        let toastMessage = '';
-        let toastType = 'success';
-
-        setCart(prevCart => {
-            const existingItem = prevCart.find(item => item._id === product._id);
-            if (existingItem) {
-                // Check stock limit
-                if (existingItem.quantity + quantity > product.stock) {
-                    // We can't toast here directly if we want to avoid side effects in render
-                    // But setState updater isn't exactly render.
-                    // However, to be safe and cleaner matches typical patterns:
-                    // Actually, the issue might be that toast triggers a re-render of something else synchronously?
-                    // Better to calculate next state first.
-                    return prevCart;
-                }
-                return prevCart.map(item =>
-                    item._id === product._id
-                        ? { ...item, quantity: item.quantity + quantity }
-                        : item
-                );
-            } else {
-                if (quantity > product.stock) {
-                    return prevCart;
-                }
-                return [...prevCart, { ...product, quantity }];
-            }
-        });
-
-        // We need to check the condition again to decide whether to toast
-        // Or better: read the CURRENT state? No, that's stale.
-        // We can check the SAME conditions.
-
-        // Let's rely on the fact that if we didn't return early above, we succeeded.
-        // But verifying logic outside is safer.
-
-        const currentCart = [...cart]; // This is stale inside the function closure if called rapidly?
-        // Actually, let's just do the check outside BEFORE setCart.
-
+        // 1. Check stock availability before updating state to avoid render side-effects
         const existingItem = cart.find(item => item._id === product._id);
         const currentQty = existingItem ? existingItem.quantity : 0;
 
@@ -67,15 +29,21 @@ export const CartProvider = ({ children }) => {
             return;
         }
 
-        toast.success(existingItem ? 'Cart updated!' : 'Added to cart!');
-
+        // 2. State update (no side effects inside)
         setCart(prevCart => {
             const exist = prevCart.find(item => item._id === product._id);
             if (exist) {
-                return prevCart.map(item => item._id === product._id ? { ...item, quantity: item.quantity + quantity } : item);
+                return prevCart.map(item =>
+                    item._id === product._id
+                        ? { ...item, quantity: item.quantity + quantity }
+                        : item
+                );
             }
             return [...prevCart, { ...product, quantity }];
         });
+
+        // 3. Show success toast (outside setState)
+        toast.success(existingItem ? 'Cart updated!' : 'Added to cart!');
     };
 
     const removeFromCart = (productId) => {
