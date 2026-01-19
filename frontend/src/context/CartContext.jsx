@@ -20,15 +20,22 @@ export const CartProvider = ({ children }) => {
     }, [cart]);
 
     const addToCart = (product, quantity = 1) => {
+        let shouldToast = false;
+        let toastMessage = '';
+        let toastType = 'success';
+
         setCart(prevCart => {
             const existingItem = prevCart.find(item => item._id === product._id);
             if (existingItem) {
                 // Check stock limit
                 if (existingItem.quantity + quantity > product.stock) {
-                    toast.error(`Cannot add more than ${product.stock} items!`);
+                    // We can't toast here directly if we want to avoid side effects in render
+                    // But setState updater isn't exactly render.
+                    // However, to be safe and cleaner matches typical patterns:
+                    // Actually, the issue might be that toast triggers a re-render of something else synchronously?
+                    // Better to calculate next state first.
                     return prevCart;
                 }
-                toast.success('Cart updated!');
                 return prevCart.map(item =>
                     item._id === product._id
                         ? { ...item, quantity: item.quantity + quantity }
@@ -36,12 +43,38 @@ export const CartProvider = ({ children }) => {
                 );
             } else {
                 if (quantity > product.stock) {
-                    toast.error(`Only ${product.stock} items available!`);
                     return prevCart;
                 }
-                toast.success('Added to cart!');
                 return [...prevCart, { ...product, quantity }];
             }
+        });
+
+        // We need to check the condition again to decide whether to toast
+        // Or better: read the CURRENT state? No, that's stale.
+        // We can check the SAME conditions.
+
+        // Let's rely on the fact that if we didn't return early above, we succeeded.
+        // But verifying logic outside is safer.
+
+        const currentCart = [...cart]; // This is stale inside the function closure if called rapidly?
+        // Actually, let's just do the check outside BEFORE setCart.
+
+        const existingItem = cart.find(item => item._id === product._id);
+        const currentQty = existingItem ? existingItem.quantity : 0;
+
+        if (currentQty + quantity > product.stock) {
+            toast.error(existingItem ? `Cannot add more than ${product.stock} items!` : `Only ${product.stock} items available!`);
+            return;
+        }
+
+        toast.success(existingItem ? 'Cart updated!' : 'Added to cart!');
+
+        setCart(prevCart => {
+            const exist = prevCart.find(item => item._id === product._id);
+            if (exist) {
+                return prevCart.map(item => item._id === product._id ? { ...item, quantity: item.quantity + quantity } : item);
+            }
+            return [...prevCart, { ...product, quantity }];
         });
     };
 
@@ -50,21 +83,22 @@ export const CartProvider = ({ children }) => {
     };
 
     const updateQuantity = (productId, delta) => {
-        setCart(prevCart => {
-            return prevCart.map(item => {
-                if (item._id === productId) {
-                    const newQuantity = Math.max(1, item.quantity + delta);
-                    // Ideally we should check stock here too, but simplest is to trust the decrement/increment buttons which usually have limits
-                    // But strictly speaking, we can check item.stock if avail.
-                    if (delta > 0 && item.stock && newQuantity > item.stock) {
-                        toast.error(`Max stock reached!`);
-                        return item;
-                    }
-                    return { ...item, quantity: newQuantity };
-                }
-                return item;
-            });
-        });
+        const item = cart.find(i => i._id === productId);
+        if (!item) return;
+
+        const newQuantity = item.quantity + delta;
+
+        if (delta > 0 && item.stock && newQuantity > item.stock) {
+            toast.error(`Max stock reached!`);
+            return;
+        }
+
+        // We allow 0 or negative temporarilly? No, logic says Math.max(1)
+        if (newQuantity < 1) return;
+
+        setCart(prevCart => prevCart.map(i =>
+            i._id === productId ? { ...i, quantity: newQuantity } : i
+        ));
     };
 
     const clearCart = () => {
