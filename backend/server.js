@@ -25,8 +25,14 @@ app.use(cors({
             'http://localhost:5174',
             'https://kirana-store-frontend.vercel.app'
         ];
+
         // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) return callback(null, true);
+
+        // Check if origin is in allowed list or is a Vercel subdomain
+        const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app');
+
+        if (isAllowed) {
             callback(null, true);
         } else {
             logger.warn(`CORS blocked origin: ${origin}`);
