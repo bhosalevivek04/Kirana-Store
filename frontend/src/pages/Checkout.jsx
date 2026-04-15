@@ -56,9 +56,26 @@ const Checkout = () => {
 
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+    const loadRazorpay = () =>
+        new Promise((resolve) => {
+            if (window.Razorpay) return resolve(true);
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+
     const handleOnlinePayment = async () => {
         setLoading(true);
         try {
+            const loaded = await loadRazorpay();
+            if (!loaded) {
+                toast.error('Failed to load payment gateway. Please try again.');
+                setLoading(false);
+                return;
+            }
+
             // 1. Create Order on Backend
             const orderRes = await api.post('/payments/create-order', { amount: total });
             const { id: order_id, amount, currency } = orderRes.data;

@@ -128,7 +128,7 @@ const Navbar = () => {
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             <nav className="bg-green-600 text-white shadow-lg sticky top-0 z-30">
-                <div className="container mx-auto px-4 py-3">
+                <div className="container mx-auto px-4 py-4">
                     <div className="flex justify-between items-center gap-4">
                         {/* Left: Hamburger + Logo */}
                         <div className="flex items-center gap-3 flex-shrink-0">
@@ -140,7 +140,7 @@ const Navbar = () => {
                                     <Menu size={24} />
                                 </button>
                             )}
-                            <Link to="/" className="text-xl font-bold whitespace-nowrap" onClick={clearSearch}>
+                            <Link to="/" className="text-2xl font-bold whitespace-nowrap" onClick={clearSearch}>
                                 {import.meta.env.VITE_STORE_NAME || 'Kirana Store'}
                             </Link>
                         </div>

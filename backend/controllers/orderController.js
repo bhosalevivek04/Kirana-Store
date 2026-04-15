@@ -1,6 +1,5 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
-const redisClient = require('../config/redisClient');
 
 exports.createOrder = async (req, res) => {
     try {
@@ -28,22 +27,13 @@ exports.createOrder = async (req, res) => {
         }
 
         // Create order with appropriate status
-        const order = new Order({
-            user: req.user.id,
+        const order = new Order({            user: req.user.id,
             items,
             totalAmount,
             paymentMethod,
             status: paymentMethod === 'cash' ? 'completed' : 'pending' // Cash orders are completed immediately
         });
         await order.save();
-
-        // Invalidate product cache if stock was reduced
-        if (paymentMethod === 'cash') {
-            const keys = await redisClient.keys('products:*');
-            if (keys.length > 0) {
-                await redisClient.del(keys);
-            }
-        }
 
         res.status(201).json(order);
     } catch (error) {
@@ -99,8 +89,6 @@ exports.updateOrderStatus = async (req, res) => {
                 product.stock -= item.quantity;
                 await product.save();
             }
-            // Invalidate product cache
-            await redisClient.del('products');
         }
 
         order.status = status;

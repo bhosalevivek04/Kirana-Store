@@ -66,14 +66,10 @@ app.use('/api/chat', require('./routes/chatRoutes'));
 
 const logger = require('./config/logger');
 
-const redisClient = require('./config/redisClient');
-
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
     .then(() => logger.info('MongoDB Connected'))
     .catch(err => logger.error('MongoDB Connection Error:', err));
-
-// Redis is now auto-connected in config/redisClient.js
 
 // Global Error Handler
 app.use((err, req, res, next) => {

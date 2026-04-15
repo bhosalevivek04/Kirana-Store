@@ -26,7 +26,7 @@ const Udhaar = () => {
 
     const fetchCredits = async () => {
         try {
-            const res = await api.get('/credits/summary');
+            const res = await api.get('/credits');
             setCredits(res.data);
         } catch (error) {
             logger.error('Error fetching credits:', error);

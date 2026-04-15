@@ -6,6 +6,9 @@ import { toast } from 'react-toastify';
 
 const Inventory = () => {
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
     const [formData, setFormData] = useState({ name: '', price: '', stock: '', minStockLevel: '10', description: '', imageUrl: '', category: '' });
@@ -27,6 +30,17 @@ const Inventory = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(e.target.value);
+        setFilteredProducts(
+            products.filter(p =>
+                p.name.toLowerCase().includes(query) ||
+                (p.category && p.category.toLowerCase().includes(query))
+            )
+        );
     };
 
     const handleImageChange = (e) => {
@@ -132,6 +146,23 @@ const Inventory = () => {
                 </button>
             </div>
 
+            {/* Search Bar */}
+            <div className="relative mb-4">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                    type="text"
+                    placeholder="Search by name or category..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                {searchQuery && (
+                    <button onClick={() => { setSearchQuery(''); setFilteredProducts(products); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <X size={16} />
+                    </button>
+                )}
+            </div>
+
             {/* Desktop View - Table */}
             <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -145,7 +176,9 @@ const Inventory = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {products.map(product => {
+                        {filteredProducts.length === 0 ? (
+                            <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No products found</td></tr>
+                        ) : filteredProducts.map(product => {
                             const status = getStockStatus(product.stock, product.minStockLevel || 10);
                             return (
                                 <tr key={product._id}>
@@ -175,7 +208,9 @@ const Inventory = () => {
 
             {/* Mobile View - Cards */}
             <div className="md:hidden space-y-4">
-                {products.map(product => {
+                {filteredProducts.length === 0 ? (
+                    <p className="text-center text-gray-400 py-8">No products found</p>
+                ) : filteredProducts.map(product => {
                     const status = getStockStatus(product.stock, product.minStockLevel || 10);
                     return (
                         <div key={product._id} className="bg-white rounded-lg shadow p-4">
